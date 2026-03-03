@@ -65,3 +65,4 @@ prisma/dev.db-journal
 
 # Docker
 .docker/
+.vercel
