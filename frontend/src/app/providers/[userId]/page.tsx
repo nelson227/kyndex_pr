@@ -79,7 +79,6 @@ interface ProviderProfile {
 
 export default function ProviderProfilePage() {
   const params = useParams();
-  const router = useRouter();
   const { user } = useAuth();
   const userId = params.userId as string;
 
