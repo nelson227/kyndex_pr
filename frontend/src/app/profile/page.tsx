@@ -142,11 +142,11 @@ export default function ProfilePage() {
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 shadow-sm z-40">
-          <div className="max-w-2xl mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900">Mon Profil</h1>
+          <div className="max-w-2xl mx-auto px-4 py-2 sm:py-4 flex justify-between items-center">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Mon Profil</h1>
             <button
               onClick={handleLogout}
-              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+              className="px-3 sm:px-4 py-1 sm:py-2 text-sm sm:text-base bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
             >
               Déconnexion
             </button>
@@ -154,29 +154,29 @@ export default function ProfilePage() {
         </div>
 
         {/* Main Content */}
-        <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
+        <div className="max-w-2xl mx-auto px-4 py-4 sm:py-8 space-y-4 sm:space-y-6">
           {/* Profile Card */}
-          <div className="bg-white rounded-2xl overflow-hidden shadow-lg">
+          <div className="bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-lg">
             {/* Cover */}
-            <div className="h-32 bg-gradient-to-r from-blue-500 to-blue-600"></div>
+            <div className="h-24 sm:h-32 bg-gradient-to-r from-blue-500 to-blue-600"></div>
 
             {/* Avatar & Info */}
-            <div className="px-6 pb-6">
-              <div className="flex flex-col items-center -mt-16 mb-6">
+            <div className="px-4 sm:px-6 pb-4 sm:pb-6">
+              <div className="flex flex-col items-center -mt-12 sm:-mt-16 mb-4 sm:mb-6">
                 {profile.avatarUrl ? (
                   <img
                     src={`http://localhost:3001${profile.avatarUrl}`}
                     alt="Avatar"
-                    className="w-32 h-32 rounded-full border-4 border-white object-cover"
+                    className="w-24 sm:w-32 h-24 sm:h-32 rounded-full border-4 border-white object-cover"
                   />
                 ) : (
-                  <div className="w-32 h-32 rounded-full border-4 border-white bg-gray-300 flex items-center justify-center text-5xl">
+                  <div className="w-24 sm:w-32 h-24 sm:h-32 rounded-full border-4 border-white bg-gray-300 flex items-center justify-center text-3xl sm:text-5xl">
                     👤
                   </div>
                 )}
 
                 {/* Upload Avatar */}
-                <label className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold cursor-pointer hover:bg-blue-700 transition">
+                <label className="mt-2 sm:mt-4 px-3 sm:px-4 py-1 sm:py-2 text-sm sm:text-base bg-blue-600 text-white rounded-lg font-semibold cursor-pointer hover:bg-blue-700 transition">
                   📸 Changer avatar
                   <input
                     type="file"
@@ -188,25 +188,25 @@ export default function ProfilePage() {
               </div>
 
               {/* Name & Stats */}
-              <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">
+              <div className="text-center mb-4 sm:mb-6">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
                   {profile.firstName} {profile.lastName}
                 </h2>
-                <p className="text-gray-600 text-sm mt-1">Utilisateur Kyndex</p>
+                <p className="text-gray-600 text-xs sm:text-sm mt-1">Utilisateur Kyndex</p>
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-4 py-6 border-t border-b border-gray-200">
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 py-4 sm:py-6 border-t border-b border-gray-200">
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-blue-600">0</p>
+                  <p className="text-xl sm:text-2xl font-bold text-blue-600">0</p>
                   <p className="text-xs text-gray-600">Compétences</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-blue-600">0</p>
+                  <p className="text-xl sm:text-2xl font-bold text-blue-600">0</p>
                   <p className="text-xs text-gray-600">Matches</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-yellow-400">
+                  <p className="text-xl sm:text-2xl font-bold text-yellow-400">
                     ⭐ {profile.reputationScore.toFixed(1)}
                   </p>
                   <p className="text-xs text-gray-600">Note</p>
@@ -217,7 +217,7 @@ export default function ProfilePage() {
 
           {/* Tabs */}
           <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-            <div className="flex border-b border-gray-200">
+            <div className="flex border-b border-gray-200 overflow-x-auto">
               {[
                 { id: 'profile', label: 'Profil' },
                 { id: 'portfolio', label: 'Portfolio' },
