@@ -6,6 +6,7 @@ import PublicLayout from '@/app/public-layout';
 import { createApiClient } from '@/lib/api-client';
 import { useAuth } from '@/hooks/useAuth';
 import { CreateServiceRequestModal } from '@/components/CreateServiceRequestModal';
+import ProviderProfileModal from '@/components/ProviderProfileModal';
 import Link from 'next/link';
 import { ReviewSection } from '@/components/ReviewSection';
 import { Badge } from '@/components/UIElements';
@@ -89,6 +90,9 @@ export default function ProviderProfilePage() {
   const [services, setServices] = useState<Service[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [isCreateRequestModalOpen, setIsCreateRequestModalOpen] = useState(false);
   const apiClient = useMemo(() => createApiClient(), []);
 
@@ -114,16 +118,43 @@ export default function ProviderProfilePage() {
     }
   };
 
-  // Handler pour le bouton "Demander un service"
+  // Handler pour le bouton "Contacter" - affiche le profil modal
   const handleContactProvider = () => {
+    setIsProfileModalOpen(true);
+  };
+
+  // Handler pour le bouton "Demander un service" dans le modal
+  const handleDemandService = () => {
     if (!user) {
-      // Non connecté → redirection vers login
-      router.push('/auth/login');
+      // Non connecté → afficher modal auth
+      setIsAuthModalOpen(true);
     } else {
-      // Connecté → ouvrir le modal
+      // Connecté → fermer profil modal et ouvrir CreateServiceRequestModal
+      setIsProfileModalOpen(false);
       setIsCreateRequestModalOpen(true);
     }
   };
+
+  // Transform ProviderProfile à Provider pour ProviderProfileModal
+  const providerForModal = provider ? {
+    id: Math.random(),
+    name: `${provider.profile.firstName} ${provider.profile.lastName}`,
+    category: 'Service',
+    price: services[0]?.basePrice ? `${services[0].basePrice} ${services[0].currency}` : 'Devis',
+    rating: provider.profile.averageRating,
+    reviews: provider.profile.totalReviews,
+    tags: services.map(s => s.title).slice(0, 3),
+    isTop: (provider.badges && provider.badges.length > 0) || false,
+    emoji: '👤',
+    experience: `${provider.profile.totalReviews} avis clients`,
+    about: provider.profile.bio,
+    zone: provider.profile.city,
+    city: provider.profile.city,
+    verified: true,
+    verified_phone: !!provider.phone,
+    evaluations: provider.profile.totalReviews,
+    note: provider.profile.averageRating,
+  } : null;
 
   if (loading) {
     return (
@@ -155,212 +186,172 @@ export default function ProviderProfilePage() {
 
   return (
     <PublicLayout>
-      <div className="min-h-screen bg-gray-50">
-        {/* Back Button */}
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <Link href="/services" className="text-blue-600 hover:text-blue-700 font-semibold">
-            ← Retour aux services
-          </Link>
-        </div>
-
-        {/* Profile Header */}
-        <div className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-              {/* Avatar & Basic Info */}
-              <div className="flex flex-col items-center md:items-start text-center md:text-left">
-                {provider.profile.avatarUrl ? (
-                  <img
-                    src={`http://localhost:3001${provider.profile.avatarUrl}`}
-                    alt={provider.profile.firstName}
-                    className="w-32 h-32 rounded-full object-cover mb-4 shadow-lg"
-                  />
-                ) : (
-                  <div className="w-32 h-32 rounded-full bg-gray-300 flex items-center justify-center text-6xl mb-4 shadow-lg">
-                    👤
-                  </div>
-                )}
-                <h1 className="text-3xl font-bold text-gray-900">
-                  {provider.profile.firstName} {provider.profile.lastName}
-                </h1>
-                <p className="text-gray-600 text-lg mt-1">📍 {provider.profile.city}</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-950 flex items-center justify-center p-4">
+        {/* Hero Section */}
+        <div className="text-center max-w-2xl">
+          {/* Avatar */}
+          <div className="mb-6">
+            {provider.profile.avatarUrl ? (
+              <img
+                src={`http://localhost:3001${provider.profile.avatarUrl}`}
+                alt={provider.profile.firstName}
+                className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover mx-auto shadow-lg border-4 border-cyan-500/30"
+              />
+            ) : (
+              <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gradient-to-br from-cyan-500/20 to-purple-600/20 flex items-center justify-center text-6xl sm:text-8xl mx-auto border-4 border-cyan-500/30">
+                👤
               </div>
+            )}
+          </div>
 
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-4">
-                <div className="bg-blue-50 rounded-lg p-4 text-center">
-                  <div className="text-3xl font-bold text-blue-600">{averageRating.toFixed(1)}</div>
-                  <div className="text-sm text-gray-600">⭐ Note moyenne</div>
-                </div>
-                <div className="bg-green-50 rounded-lg p-4 text-center">
-                  <div className="text-3xl font-bold text-green-600">{reviews.length}</div>
-                  <div className="text-sm text-gray-600">💬 Avis</div>
-                </div>
-                <div className="bg-purple-50 rounded-lg p-4 text-center">
-                  <div className="text-3xl font-bold text-purple-600">{services.length}</div>
-                  <div className="text-sm text-gray-600">📋 Services</div>
-                </div>
-              </div>
+          {/* Provider Info */}
+          <h1 className="text-3xl sm:text-5xl font-bold text-white mb-2">
+            {provider.profile.firstName} {provider.profile.lastName}
+          </h1>
+          <p className="text-lg text-cyan-400 mb-4">📍 {provider.profile.city}</p>
+          <p className="text-gray-400 text-base sm:text-lg mb-6 leading-relaxed">
+            {provider.profile.bio}
+          </p>
 
-              {/* Response Time & CTA */}
-              <div className="space-y-4">
-                <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4">
-                  <p className="text-sm text-gray-600">⏱️ Temps de réponse</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {provider.profile.responseTime}h
-                  </p>
-                </div>
-                <button 
-                  onClick={handleContactProvider}
-                  className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
-                >
-                  {user ? '💼 Demander un service' : '🔗 Se connecter pour demander'}
-                </button>
-              </div>
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-8">
+            <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-3 sm:p-4">
+              <div className="text-2xl sm:text-3xl font-bold text-cyan-400">{provider.profile.averageRating.toFixed(1)}</div>
+              <div className="text-xs sm:text-sm text-gray-400">⭐ Évaluation</div>
+            </div>
+            <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-3 sm:p-4">
+              <div className="text-2xl sm:text-3xl font-bold text-purple-400">{reviews.length}</div>
+              <div className="text-xs sm:text-sm text-gray-400">💬 Avis</div>
+            </div>
+            <div className="bg-indigo-500/10 border border-indigo-500/30 rounded-lg p-3 sm:p-4">
+              <div className="text-2xl sm:text-3xl font-bold text-indigo-400">{services.length}</div>
+              <div className="text-xs sm:text-sm text-gray-400">📋 Services</div>
             </div>
           </div>
+
+          {/* CTA Button */}
+          <button
+            onClick={handleContactProvider}
+            className="w-full sm:w-auto px-8 sm:px-12 py-3 sm:py-4 bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-bold rounded-xl transition transform hover:scale-105 text-base sm:text-lg"
+          >
+            📞 Contacter ce prestataire
+          </button>
         </div>
+      </div>
 
-        {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column */}
-            <div className="lg:col-span-2 space-y-8">
-              {/* About Section */}
-              {provider.profile.bio && (
-                <div className="bg-white rounded-lg p-6 shadow-sm">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">À propos</h2>
-                  <p className="text-gray-700 text-lg leading-relaxed">{provider.profile.bio}</p>
-                </div>
-              )}
+      {/* Provider Profile Modal */}
+      {providerForModal && (
+        <ProviderProfileModal
+          provider={providerForModal}
+          isOpen={isProfileModalOpen}
+          onClose={() => setIsProfileModalOpen(false)}
+          onDemandService={handleDemandService}
+        />
+      )}
 
-              {/* Badges Section */}
-              {provider.badges && provider.badges.length > 0 && (
-                <div className="bg-white rounded-lg p-6 shadow-sm">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">Certifications & Badges</h2>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {provider.badges.map((userBadge) => (
-                      <Badge
-                        key={userBadge.id}
-                        icon={userBadge.badge.icon}
-                        label={userBadge.badge.name}
-                        color={userBadge.badge.color}
-                        description={userBadge.badge.description}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
+      {/* Auth Modal - Login/Signup */}
+      {isAuthModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-cyan-400/30 rounded-2xl p-6 sm:p-8 max-w-md w-full">
+            {/* Mode Toggle */}
+            <div className="flex gap-2 mb-8">
+              <button
+                onClick={() => setAuthMode('login')}
+                className={`flex-1 py-2 rounded-lg font-bold transition text-sm sm:text-base ${
+                  authMode === 'login'
+                    ? 'bg-gradient-to-r from-cyan-500 to-cyan-600 text-white'
+                    : 'text-cyan-300 hover:text-cyan-200'
+                }`}
+              >
+                Se connecter
+              </button>
+              <button
+                onClick={() => setAuthMode('signup')}
+                className={`flex-1 py-2 rounded-lg font-bold transition text-sm sm:text-base ${
+                  authMode === 'signup'
+                    ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white'
+                    : 'text-cyan-300 hover:text-cyan-200'
+                }`}
+              >
+                S'inscrire
+              </button>
+            </div>
 
-              {/* Services Section */}
-              <div className="bg-white rounded-lg p-6 shadow-sm">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Services proposés ({services.length})</h2>
-                {services.length > 0 ? (
-                  <div className="space-y-4">
-                    {services.map((service) => (
-                      <Link
-                        key={service.id}
-                        href={`/services/${service.id}`}
-                        className="block border border-gray-200 rounded-lg p-4 hover:shadow-md hover:border-blue-400 transition group"
-                      >
-                        <div className="flex items-start gap-4">
-                          <span
-                            className="text-3xl w-12 h-12 flex items-center justify-center rounded-lg text-white flex-shrink-0"
-                            style={{ backgroundColor: service.category.color }}
-                          >
-                            {service.category.icon}
-                          </span>
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition">
-                              {service.title}
-                            </h3>
-                            <p className="text-gray-600 text-sm mt-1 line-clamp-2">{service.description}</p>
-
-                            {/* Service Details */}
-                            <div className="flex flex-wrap gap-2 mt-3">
-                              <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
-                                {service.category.name}
-                              </span>
-                              {service.onsite && (
-                                <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
-                                  Sur place
-                                </span>
-                              )}
-                              {service.remote && (
-                                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
-                                  À distance
-                                </span>
-                              )}
-                              <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
-                                {service.basePrice}€{service.priceType === 'HOURLY' ? '/h' : ''}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="flex flex-col items-end flex-shrink-0">
-                            <div className="flex items-center gap-1">
-                              <span className="text-lg">⭐</span>
-                              <span className="font-bold text-gray-900">{service.averageRating.toFixed(1)}</span>
-                            </div>
-                            <p className="text-xs text-gray-600">{service.totalReviews} avis</p>
-                          </div>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-gray-600 text-center py-8">Aucun service proposé pour le moment</p>
-                )}
-              </div>
-
-              {/* Reviews Section */}
-              {reviews.length > 0 && (
-                <ReviewSection
-                  reviews={reviews}
-                  averageRating={averageRating}
-                  totalReviews={reviews.length}
+            {authMode === 'login' ? (
+              <form className="space-y-4">
+                <input
+                  type="email"
+                  placeholder="Email"
+                  className="w-full bg-gray-800/50 border border-cyan-400/30 text-white px-4 py-2 sm:py-3 rounded-lg focus:outline-none focus:border-cyan-400 text-sm sm:text-base"
                 />
-              )}
-            </div>
-
-            {/* Right Column - Info Card */}
-            <div>
-              <div className="bg-white rounded-lg p-6 shadow-md sticky top-4 space-y-4">
-                <h3 className="text-lg font-bold text-gray-900">Informations</h3>
-
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">📧 Email</p>
-                  <p className="font-semibold text-gray-900 break-all">{provider.email}</p>
-                </div>
-
-                {provider.phone && (
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">📱 Téléphone</p>
-                    <p className="font-semibold text-gray-900">{provider.phone}</p>
-                  </div>
-                )}
-
-                {provider.profile.hourlyRate && (
-                  <div className="bg-blue-50 p-3 rounded-lg">
-                    <p className="text-sm text-gray-600">💰 Tarif horaire</p>
-                    <p className="text-xl font-bold text-blue-600">{provider.profile.hourlyRate}€/h</p>
-                  </div>
-                )}
-
-                <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
-                  Envoyer un message
+                <input
+                  type="password"
+                  placeholder="Mot de passe"
+                  className="w-full bg-gray-800/50 border border-cyan-400/30 text-white px-4 py-2 sm:py-3 rounded-lg focus:outline-none focus:border-cyan-400 text-sm sm:text-base"
+                />
+                <button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-400 hover:to-cyan-500 text-white font-bold py-2 sm:py-3 px-4 rounded-lg transition text-sm sm:text-base"
+                >
+                  Se connecter
                 </button>
-
-                <div className="border-t border-gray-200 pt-4 mt-4">
-                  <p className="text-xs text-gray-600 mb-3">✓ Identité vérifiée</p>
-                  <p className="text-xs text-gray-600 mb-3">✓ Paiement sécurisé</p>
-                  <p className="text-xs text-gray-600">✓ Évaluations authentiques</p>
+              </form>
+            ) : (
+              <form className="space-y-4">
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    placeholder="Prénom"
+                    className="bg-gray-800/50 border border-cyan-400/30 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-cyan-400 text-sm"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Nom"
+                    className="bg-gray-800/50 border border-cyan-400/30 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-cyan-400 text-sm"
+                  />
                 </div>
-              </div>
-            </div>
+                <input
+                  type="email"
+                  placeholder="Email"
+                  className="w-full bg-gray-800/50 border border-cyan-400/30 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-cyan-400 text-sm"
+                />
+                <input
+                  type="text"
+                  placeholder="Téléphone"
+                  className="w-full bg-gray-800/50 border border-cyan-400/30 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-cyan-400 text-sm"
+                />
+                <input
+                  type="text"
+                  placeholder="Localisation"
+                  className="w-full bg-gray-800/50 border border-cyan-400/30 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-cyan-400 text-sm"
+                />
+                <input
+                  type="password"
+                  placeholder="Mot de passe"
+                  className="w-full bg-gray-800/50 border border-cyan-400/30 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-cyan-400 text-sm"
+                />
+                <button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white font-bold py-2 px-4 rounded-lg transition text-sm"
+                >
+                  S'inscrire
+                </button>
+              </form>
+            )}
+
+            {/* Close Button */}
+            <button
+              onClick={() => setIsAuthModalOpen(false)}
+              className="mt-6 w-full text-cyan-400 hover:text-cyan-300 text-sm font-medium transition"
+            >
+              Fermer
+            </button>
           </div>
         </div>
+      )}
 
-        {/* Create Service Request Modal */}
+      {/* Create Service Request Modal */}
+      {user && (
         <CreateServiceRequestModal
           isOpen={isCreateRequestModalOpen}
           onClose={() => setIsCreateRequestModalOpen(false)}
@@ -369,7 +360,7 @@ export default function ProviderProfilePage() {
             loadProviderData();
           }}
         />
-      </div>
+      )}
     </PublicLayout>
   );
 }
