@@ -150,18 +150,18 @@ export function MessagesContent() {
 
   return (
     <AppLayout>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 flex flex-col">
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 shadow-sm z-40">
-          <div className="max-w-4xl mx-auto px-4 py-4">
-            <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
+          <div className="px-4 py-2 sm:py-4">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Messages</h1>
           </div>
         </div>
 
         {/* Main Content */}
-        <div className="max-w-4xl mx-auto">
+        <div className="flex-1 overflow-hidden">
           {loading ? (
-            <div className="flex items-center justify-center h-[calc(100vh-100px)]">
+            <div className="flex items-center justify-center h-full">
               <div className="text-center">
                 <div className="inline-block animate-spin mb-4">
                   <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
@@ -170,9 +170,9 @@ export function MessagesContent() {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-[calc(100vh-100px)] p-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 sm:gap-4 h-full p-2 sm:p-4">
               {/* Conversations List */}
-              <div className="md:col-span-1 bg-white rounded-lg border border-gray-200 overflow-y-auto">
+              <div className={`${selectedConversation ? 'hidden lg:block' : 'col-span-1'} lg:col-span-1 bg-white rounded-lg border border-gray-200 overflow-y-auto`}>
                 {conversations.length === 0 ? (
                   <div className="flex items-center justify-center h-full text-center">
                     <div>
@@ -192,28 +192,28 @@ export function MessagesContent() {
                       <button
                         key={conv.id}
                         onClick={() => setSelectedConversation(conv)}
-                        className={`w-full text-left px-4 py-4 border-b border-gray-100 hover:bg-blue-50 transition relative ${
+                        className={`w-full text-left px-3 sm:px-4 py-2 sm:py-4 border-b border-gray-100 hover:bg-blue-50 transition relative ${
                           isSelected ? 'bg-blue-50 border-l-4 border-l-blue-600' : ''
                         }`}
                       >
-                        <div className="flex gap-3">
+                        <div className="flex gap-2 sm:gap-3">
                           {otherUser?.profile?.avatarUrl ? (
                             <img
                               src={`http://localhost:3001${otherUser.profile.avatarUrl}`}
                               alt={otherUser.profile.firstName}
-                              className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover flex-shrink-0"
                             />
                           ) : (
-                            <div className="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center text-xl flex-shrink-0">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-300 flex items-center justify-center text-lg sm:text-xl flex-shrink-0">
                               👤
                             </div>
                           )}
 
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-gray-900">
+                            <h3 className="font-semibold text-gray-900 text-sm sm:text-base truncate">
                               {otherUser?.profile?.firstName} {otherUser?.profile?.lastName}
                             </h3>
-                            <p className="text-sm text-gray-600 truncate">
+                            <p className="text-xs sm:text-sm text-gray-600 truncate">
                               {conv.lastMessage?.content || 'Aucun message'}
                             </p>
                           </div>
@@ -234,42 +234,52 @@ export function MessagesContent() {
 
               {/* Chat Area */}
               {selectedConversation ? (
-                <div className="md:col-span-2 bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col">
+                <div className="col-span-1 lg:col-span-2 bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col h-full">
                   {/* Header */}
-                  <div className="px-6 py-4 border-b border-gray-200">
-                    {(() => {
-                      const otherUser = getOtherParticipant(selectedConversation);
-                      return (
-                        <div className="flex items-center gap-3">
-                          {otherUser?.profile?.avatarUrl ? (
-                            <img
-                              src={`http://localhost:3001${otherUser.profile.avatarUrl}`}
-                              alt={otherUser.profile.firstName}
-                              className="w-10 h-10 rounded-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-lg">
-                              👤
+                  <div className="px-3 sm:px-6 py-2 sm:py-4 border-b border-gray-200 flex items-center justify-between">
+                    <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                      {(() => {
+                        const otherUser = getOtherParticipant(selectedConversation);
+                        return (
+                          <>
+                            {otherUser?.profile?.avatarUrl ? (
+                              <img
+                                src={`http://localhost:3001${otherUser.profile.avatarUrl}`}
+                                alt={otherUser.profile.firstName}
+                                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0"
+                              />
+                            ) : (
+                              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-300 flex items-center justify-center text-sm sm:text-lg flex-shrink-0">
+                                👤
+                              </div>
+                            )}
+                            <div className="min-w-0 flex-1">
+                              <h2 className="font-semibold text-gray-900 text-sm sm:text-base truncate">
+                                {otherUser?.profile?.firstName} {otherUser?.profile?.lastName}
+                              </h2>
+                              <p className="text-xs sm:text-sm text-gray-600 truncate">{otherUser?.email}</p>
                             </div>
-                          )}
-                          <div>
-                            <h2 className="font-semibold text-gray-900">
-                              {otherUser?.profile?.firstName} {otherUser?.profile?.lastName}
-                            </h2>
-                            <p className="text-sm text-gray-600">{otherUser?.email}</p>
-                          </div>
-                        </div>
-                      );
-                    })()}
+                          </>
+                        );
+                      })()}
+                    </div>
+                    {/* Back button for mobile */}
+                    <button
+                      onClick={() => setSelectedConversation(null)}
+                      className="lg:hidden ml-2 p-2 hover:bg-gray-100 rounded-lg transition"
+                      title="Retour"
+                    >
+                      ←
+                    </button>
                   </div>
 
                   {/* Messages */}
-                  <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+                  <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-2 sm:py-4 space-y-2 sm:space-y-4">
                     {selectedConversation && selectedConversation.messages && selectedConversation.messages.length === 0 ? (
                       <div className="flex items-center justify-center h-full text-center">
                         <div>
-                          <div className="text-4xl mb-2">👋</div>
-                          <p className="text-gray-600">Commencez une conversation!</p>
+                          <div className="text-3xl sm:text-4xl mb-2">👋</div>
+                          <p className="text-gray-600 text-sm sm:text-base">Commencez une conversation!</p>
                         </div>
                       </div>
                     ) : selectedConversation && selectedConversation.messages ? (
@@ -281,13 +291,13 @@ export function MessagesContent() {
                             className={`flex ${isMyMessage ? 'justify-end' : 'justify-start'}`}
                           >
                             <div
-                              className={`max-w-xs px-4 py-2 rounded-lg ${
+                              className={`max-w-xs sm:max-w-sm px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm ${
                                 isMyMessage
                                   ? 'bg-blue-600 text-white rounded-br-none'
                                   : 'bg-gray-100 text-gray-900 rounded-bl-none'
                               }`}
                             >
-                              <p className="text-sm">{msg.content}</p>
+                              <p>{msg.content}</p>
                               <p
                                 className={`text-xs mt-1 ${
                                   isMyMessage ? 'text-blue-100' : 'text-gray-600'
@@ -306,7 +316,7 @@ export function MessagesContent() {
                   </div>
 
                   {/* Input */}
-                  <div className="px-6 py-4 border-t border-gray-200 flex gap-2">
+                  <div className="px-2 sm:px-6 py-2 sm:py-4 border-t border-gray-200 flex gap-2 bg-white flex-shrink-0">
                     <input
                       type="text"
                       value={messageText}
@@ -314,24 +324,24 @@ export function MessagesContent() {
                       onKeyPress={(e) => {
                           handleKeyPress(e)
                       }}
-                      placeholder="Écrivez un message..."
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Message..."
+                      className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <button
                       onClick={handleSendMessage}
                       disabled={!messageText.trim() || sending}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 transition"
+                      className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 transition text-sm flex-shrink-0"
                     >
-                      {sending ? '⏳' : '📤'} Envoyer
+                      {sending ? '⏳' : '📤'}
                     </button>
                   </div>
                 </div>
               ) : (
-                <div className="md:col-span-2 bg-white rounded-lg border border-gray-200 flex items-center justify-center">
+                <div className="hidden lg:flex col-span-1 lg:col-span-2 bg-white rounded-lg border border-gray-200 flex items-center justify-center">
                   <div className="text-center">
-                    <div className="text-5xl mb-4">💬</div>
-                    <p className="text-gray-600 text-lg">
-                      Sélectionnez une conversation pour démarrer
+                    <div className="text-4xl sm:text-5xl mb-4">💬</div>
+                    <p className="text-gray-600 text-base sm:text-lg">
+                      Sélectionnez une conversation
                     </p>
                   </div>
                 </div>
