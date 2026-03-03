@@ -1,9 +1,11 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import PublicLayout from '@/app/public-layout';
 import { createApiClient } from '@/lib/api-client';
+import { useAuth } from '@/hooks/useAuth';
+import { CreateServiceRequestModal } from '@/components/CreateServiceRequestModal';
 import Link from 'next/link';
 import { ReviewSection } from '@/components/ReviewSection';
 import { Badge } from '@/components/UIElements';
@@ -79,12 +81,15 @@ interface ProviderProfile {
 
 export default function ProviderProfilePage() {
   const params = useParams();
+  const router = useRouter();
+  const { user } = useAuth();
   const userId = params.userId as string;
 
   const [provider, setProvider] = useState<ProviderProfile | null>(null);
   const [services, setServices] = useState<Service[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isCreateRequestModalOpen, setIsCreateRequestModalOpen] = useState(false);
   const apiClient = useMemo(() => createApiClient(), []);
 
   useEffect(() => {
@@ -106,6 +111,17 @@ export default function ProviderProfilePage() {
       console.error('Error loading provider data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Handler pour le bouton "Demander un service"
+  const handleContactProvider = () => {
+    if (!user) {
+      // Non connecté → redirection vers login
+      router.push('/auth/login');
+    } else {
+      // Connecté → ouvrir le modal
+      setIsCreateRequestModalOpen(true);
     }
   };
 
@@ -194,8 +210,11 @@ export default function ProviderProfilePage() {
                     {provider.profile.responseTime}h
                   </p>
                 </div>
-                <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
-                  💬 Envoyer un message
+                <button 
+                  onClick={handleContactProvider}
+                  className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+                >
+                  {user ? '💼 Demander un service' : '🔗 Se connecter pour demander'}
                 </button>
               </div>
             </div>
@@ -340,6 +359,16 @@ export default function ProviderProfilePage() {
             </div>
           </div>
         </div>
+
+        {/* Create Service Request Modal */}
+        <CreateServiceRequestModal
+          isOpen={isCreateRequestModalOpen}
+          onClose={() => setIsCreateRequestModalOpen(false)}
+          onSuccess={() => {
+            setIsCreateRequestModalOpen(false);
+            loadProviderData();
+          }}
+        />
       </div>
     </PublicLayout>
   );
