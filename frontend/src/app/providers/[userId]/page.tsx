@@ -1,15 +1,12 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import PublicLayout from '@/app/public-layout';
 import { createApiClient } from '@/lib/api-client';
 import { useAuth } from '@/hooks/useAuth';
 import { CreateServiceRequestModal } from '@/components/CreateServiceRequestModal';
 import ProviderProfileModal from '@/components/ProviderProfileModal';
-import Link from 'next/link';
-import { ReviewSection } from '@/components/ReviewSection';
-import { Badge } from '@/components/UIElements';
 
 interface UserBadge {
   id: string;
