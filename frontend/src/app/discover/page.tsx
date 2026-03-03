@@ -167,24 +167,24 @@ export default function DiscoverPage() {
       {/* Content */}
       <div className="relative z-10">
         {/* Navigation */}
-        <nav className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
+        <nav className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6 flex items-center justify-between gap-2 sm:gap-4 flex-wrap sm:flex-nowrap">
           <button
             onClick={() => router.push(user ? '/dashboard' : '/')}
-            className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-600"
+            className="text-xl sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-600 flex-shrink-0"
           >
             Kyndex
           </button>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 ml-auto flex-shrink-0">
             {isInitialized && user ? (
               <>
                 <button
                   onClick={() => router.push('/dashboard')}
-                  className="text-cyan-300 hover:text-cyan-200 font-semibold transition"
+                  className="text-xs sm:text-sm text-cyan-300 hover:text-cyan-200 font-semibold transition whitespace-nowrap"
                 >
                   ← Retour au Dashboard
                 </button>
-                <div className="flex items-center gap-3 border-l border-gray-700 pl-4">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center text-white font-bold">
+                <div className="flex items-center gap-2 sm:gap-3 border-l border-gray-700 pl-2 sm:pl-4">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs sm:text-sm">
                     {user.firstName?.charAt(0).toUpperCase()}
                   </div>
                   <button
@@ -192,7 +192,7 @@ export default function DiscoverPage() {
                       logout();
                       router.push('/');
                     }}
-                    className="text-gray-400 hover:text-red-400 font-semibold transition text-sm"
+                    className="text-gray-400 hover:text-red-400 font-semibold transition text-xs sm:text-sm whitespace-nowrap"
                   >
                     Déconnexion
                   </button>
@@ -202,15 +202,15 @@ export default function DiscoverPage() {
               <>
                 <button 
                   onClick={() => router.push('/onboarding')}
-                  className="text-cyan-300 hover:text-cyan-200 font-semibold transition"
+                  className="text-xs sm:text-sm text-cyan-300 hover:text-cyan-200 font-semibold transition whitespace-nowrap hidden sm:block"
                 >
                   Devenir prestataire
                 </button>
                 <button 
                   onClick={() => setIsAuthModal(true)}
-                  className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-bold py-2 px-6 rounded-lg transition"
+                  className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-bold py-1 sm:py-2 px-3 sm:px-6 rounded-lg transition text-xs sm:text-sm"
                 >
-                  Se connecter ou s'inscrire
+                  Se connecter
                 </button>
               </>
             )}
