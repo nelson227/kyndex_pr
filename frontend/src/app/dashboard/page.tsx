@@ -445,30 +445,30 @@ export default function DashboardHome() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-8">
       {/* Header - Bienvenue */}
-      <div>
-        <p className="text-gray-400 text-sm mb-1">Bienvenue</p>
-        <h1 className="text-4xl font-bold text-white">Acceuil</h1>
-        <p className="text-gray-400 mt-2">Suivez l'activité, vos missions et vos échanges en un coup d'oeil.</p>
+      <div className="px-4 sm:px-0">
+        <p className="text-gray-400 text-xs sm:text-sm mb-1">Bienvenue</p>
+        <h1 className="text-2xl sm:text-4xl font-bold text-white">Acceuil</h1>
+        <p className="text-gray-400 text-sm sm:text-base mt-2">Suivez l'activité, vos missions et vos échanges en un coup d'oeil.</p>
       </div>
 
       {/* Stats Cards */}
-      <div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="px-4 sm:px-0">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
           {statsCards.map((card) => (
             <div
               key={card.id}
-              className="bg-gray-900/50 border border-gray-800 rounded-xl p-6 hover:border-cyan-500/30 transition cursor-pointer group"
+              className="bg-gray-900/50 border border-gray-800 rounded-lg sm:rounded-xl p-3 sm:p-6 hover:border-cyan-500/30 transition cursor-pointer group"
             >
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <p className="text-gray-400 text-sm font-medium">{card.title}</p>
+              <div className="flex flex-col items-start justify-between mb-2 sm:mb-4">
+                <div className="w-full">
+                  <p className="text-gray-400 text-xs sm:text-sm font-medium truncate">{card.title}</p>
                   {card.count > 0 && (
-                    <h3 className="text-4xl font-bold text-white mt-2">{card.count}</h3>
+                    <h3 className="text-2xl sm:text-4xl font-bold text-white mt-1 sm:mt-2">{card.count}</h3>
                   )}
                 </div>
-                <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+                <span className={`text-xs font-bold px-2 py-1 rounded-full mt-1 ${
                   card.badgeColor === 'red' ? 'bg-red-500/20 text-red-400' :
                   'bg-cyan-500/20 text-cyan-400'
                 }`}>
@@ -482,8 +482,8 @@ export default function DashboardHome() {
       </div>
 
       {/* Recommandations - Prestataires qui défilent */}
-      <div>
-        <h2 className="text-xl font-bold text-white mb-4">Recommandations</h2>
+      <div className="px-4 sm:px-0">
+        <h2 className="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-4">Recommandations</h2>
         
         {/* Conteneur avec animation de scroll continu */}
         <style>{`
@@ -507,27 +507,27 @@ export default function DashboardHome() {
         
         <div className="overflow-hidden relative">
           <div
-            className="flex gap-4 carousel-scroll"
+            className="flex gap-2 sm:gap-4 carousel-scroll"
             style={{ width: 'fit-content' }}
           >
             {/* Afficher les profils 2 fois pour l'effet de boucle infinie */}
             {[...shuffledFreelancers, ...shuffledFreelancers].map((freelancer, idx) => (
               <div
                 key={`${freelancer.id}-${idx}`}
-                className="flex-shrink-0 w-80 bg-gray-900 border border-gray-800 rounded-xl overflow-hidden hover:border-cyan-500/50 transition cursor-pointer group"
+                className="flex-shrink-0 w-60 sm:w-80 bg-gray-900 border border-gray-800 rounded-lg sm:rounded-xl overflow-hidden hover:border-cyan-500/50 transition cursor-pointer group"
               >
                 {/* Avatar Area */}
-                <div className="h-40 bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center text-6xl relative">
+                <div className="h-32 sm:h-40 bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center text-4xl sm:text-6xl relative">
                   {freelancer.emoji}
                   {freelancer.isTop && (
-                    <div className="absolute top-3 right-3 bg-yellow-500 text-black px-2 py-1 rounded text-xs font-bold">
+                    <div className="absolute top-2 sm:top-3 right-2 sm:right-3 bg-yellow-500 text-black px-2 py-1 rounded text-xs font-bold">
                       🏆 Top
                     </div>
                   )}
                 </div>
 
                 {/* Content */}
-                <div className="p-4">
+                <div className="p-2 sm:p-4">
                   <h3 className="text-white font-bold text-lg">{freelancer.name}</h3>
                   <p className="text-gray-400 text-sm">{freelancer.category}</p>
                   <p className="text-cyan-400 font-semibold mt-2">{freelancer.price} $/h</p>
@@ -584,32 +584,32 @@ export default function DashboardHome() {
         </button>
         <button 
           onClick={() => setIsServiceRequestsModalOpen(true)}
-          className="px-6 py-2 border border-cyan-500 text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition text-sm font-semibold"
+          className="px-3 sm:px-6 py-2 border border-cyan-500 text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition text-xs sm:text-sm font-semibold"
         >
           Voir demandes
         </button>
-        <button className="px-6 py-2 border border-cyan-500 text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition text-sm font-semibold">
+        <button className="px-3 sm:px-6 py-2 border border-cyan-500 text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition text-xs sm:text-sm font-semibold">
           Voir missions
         </button>
-        <button className="px-6 py-2 border border-cyan-500 text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition text-sm font-semibold">
+        <button className="px-3 sm:px-6 py-2 border border-cyan-500 text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition text-xs sm:text-sm font-semibold">
           Voir messagerie
         </button>
-        <button className="px-6 py-2 border border-cyan-500 text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition text-sm font-semibold">
+        <button className="px-3 sm:px-6 py-2 border border-cyan-500 text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition text-xs sm:text-sm font-semibold">
           Voir calendrier
         </button>
       </div>
 
       {/* Aperçu rapide */}
-      <div>
-        <h2 className="text-xl font-bold text-white mb-4">Aperçu rapide</h2>
-        <div className="border border-gray-800 rounded-xl overflow-hidden">
-          <table className="w-full">
+      <div className="px-4 sm:px-0">
+        <h2 className="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-4">Aperçu rapide</h2>
+        <div className="border border-gray-800 rounded-lg sm:rounded-xl overflow-x-auto">
+          <table className="w-full min-w-max sm:min-w-full">
             <thead>
               <tr className="border-b border-gray-800 bg-gray-900/50">
-                <th className="text-left px-6 py-3 text-gray-400 font-semibold text-sm">Type</th>
-                <th className="text-left px-6 py-3 text-gray-400 font-semibold text-sm">Titre</th>
-                <th className="text-left px-6 py-3 text-gray-400 font-semibold text-sm">Statut</th>
-                <th className="text-left px-6 py-3 text-gray-400 font-semibold text-sm">Mis à jour</th>
+                <th className="text-left px-2 sm:px-6 py-2 sm:py-3 text-gray-400 font-semibold text-xs sm:text-sm">Type</th>
+                <th className="text-left px-2 sm:px-6 py-2 sm:py-3 text-gray-400 font-semibold text-xs sm:text-sm">Titre</th>
+                <th className="text-left px-2 sm:px-6 py-2 sm:py-3 text-gray-400 font-semibold text-xs sm:text-sm">Statut</th>
+                <th className="text-left px-2 sm:px-6 py-2 sm:py-3 text-gray-400 font-semibold text-xs sm:text-sm hidden sm:table-cell">Mis à jour</th>
               </tr>
             </thead>
             <tbody>
@@ -618,10 +618,10 @@ export default function DashboardHome() {
                   key={idx}
                   className="border-b border-gray-800 hover:bg-gray-900/50 transition cursor-pointer"
                 >
-                  <td className="px-6 py-4 text-white font-semibold text-sm">{item.type}</td>
-                  <td className="px-6 py-4 text-gray-300 text-sm">{item.title}</td>
-                  <td className="px-6 py-4">
-                    <span className={`text-xs font-bold px-3 py-1 rounded-full inline-block ${
+                  <td className="px-2 sm:px-6 py-2 sm:py-4 text-white font-semibold text-xs sm:text-sm">{item.type}</td>
+                  <td className="px-2 sm:px-6 py-2 sm:py-4 text-gray-300 text-xs sm:text-sm">{item.title}</td>
+                  <td className="px-2 sm:px-6 py-2 sm:py-4">
+                    <span className={`text-xs font-bold px-2 sm:px-3 py-1 rounded-full inline-block ${
                       item.statusColor === 'red' ? 'bg-red-500/20 text-red-400' :
                       item.statusColor === 'cyan' ? 'bg-cyan-500/20 text-cyan-400' :
                       'bg-green-500/20 text-green-400'
@@ -629,7 +629,7 @@ export default function DashboardHome() {
                       🔴 {item.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-gray-500 text-sm">{item.date}</td>
+                  <td className="px-2 sm:px-6 py-2 sm:py-4 text-gray-500 text-xs sm:text-sm hidden sm:table-cell">{item.date}</td>
                 </tr>
               ))}
             </tbody>
