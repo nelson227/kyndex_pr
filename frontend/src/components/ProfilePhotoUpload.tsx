@@ -22,8 +22,8 @@ export const ProfilePhotoUpload = ({ size = 'md', onPhotoChange }: ProfilePhotoU
   }, []);
 
   const sizeClasses = {
-    sm: 'w-10 h-10 xs2:w-12 xs2:h-12',
-    md: 'w-16 h-16 xs2:w-20 xs2:h-20 sm:w-24 sm:h-24',
+    sm: 'w-12 h-12 xs2:w-14 xs2:h-14',
+    md: 'w-20 h-20 xs2:w-24 xs2:h-24 sm:w-32 sm:h-32',
     lg: 'w-24 h-24 xs2:w-28 xs2:h-28 sm:w-32 sm:h-32'
   };
 
@@ -31,6 +31,12 @@ export const ProfilePhotoUpload = ({ size = 'md', onPhotoChange }: ProfilePhotoU
     sm: 'w-5 h-5',
     md: 'w-6 h-6 sm:w-8 sm:h-8',
     lg: 'w-8 h-8 sm:w-10 sm:h-10'
+  };
+
+  const buttonSizeClasses = {
+    sm: 'p-1',
+    md: 'p-2 sm:p-2.5',
+    lg: 'p-2.5 sm:p-3'
   };
 
   const handlePhotoClick = () => {
@@ -75,7 +81,7 @@ export const ProfilePhotoUpload = ({ size = 'md', onPhotoChange }: ProfilePhotoU
     <div className="relative inline-block">
       {/* Avatar ou photo */}
       <div
-        className={`${sizeClasses[size]} rounded-full bg-gradient-to-br from-cyan-500/20 to-purple-600/20 border-2 border-cyan-500/30 flex items-center justify-center cursor-pointer hover:border-cyan-400/50 transition overflow-hidden`}
+        className={`${sizeClasses[size]} rounded-full bg-gradient-to-br from-cyan-500/20 to-purple-600/20 border-2 border-cyan-500/30 flex items-center justify-center cursor-pointer hover:border-cyan-400/50 transition overflow-hidden ${!profilePhoto ? 'hover:from-cyan-500/30' : ''}`}
         onClick={handlePhotoClick}
       >
         {profilePhoto ? (
@@ -89,19 +95,21 @@ export const ProfilePhotoUpload = ({ size = 'md', onPhotoChange }: ProfilePhotoU
         )}
       </div>
 
-      {/* Bouton + */}
-      <button
-        onClick={handlePhotoClick}
-        disabled={isLoading}
-        className="absolute bottom-0 right-0 rounded-full bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 disabled:opacity-50 transition p-1.5 xs2:p-2 shadow-lg hover:shadow-cyan-500/50"
-        title="Changer la photo de profil"
-      >
-        {isLoading ? (
-          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-        ) : (
-          <Plus className="w-4 h-4 xs2:w-5 xs2:h-5 text-white" />
-        )}
-      </button>
+      {/* Bouton + (visible seulement s'il n'y a pas de photo) */}
+      {!profilePhoto && (
+        <button
+          onClick={handlePhotoClick}
+          disabled={isLoading}
+          className={`absolute bottom-0 right-0 rounded-full bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 disabled:opacity-50 transition shadow-lg hover:shadow-cyan-500/50 ${buttonSizeClasses[size]}`}
+          title="Ajouter une photo de profil"
+        >
+          {isLoading ? (
+            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          ) : (
+            <Plus className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+          )}
+        </button>
+      )}
 
       {/* Input fichier caché */}
       <input
