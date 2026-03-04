@@ -24,6 +24,7 @@ const CITY_COORDINATES: { [key: string]: { lat: number; lng: number } } = {
 export default function InterventionMap({ zone, providerName, lat, lng, radius = 25000 }: InterventionMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
+  const leafletRef = useRef<any>(null);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -36,6 +37,7 @@ export default function InterventionMap({ zone, providerName, lat, lng, radius =
     const initMap = async () => {
       // Import Leaflet dynamiquement côté client seulement
       const L = await import('leaflet').then(m => m.default);
+      leafletRef.current = L;
 
       // Fix pour les icônes
       const DefaultIcon = L.icon({
@@ -90,7 +92,8 @@ export default function InterventionMap({ zone, providerName, lat, lng, radius =
     initMap();
 
     return () => {
-      if (mapInstanceRef.current) {
+      if (mapInstanceRef.current && leafletRef.current) {
+        const L = leafletRef.current;
         mapInstanceRef.current.eachLayer((layer: any) => {
           if (layer instanceof L.Circle || layer instanceof L.Marker) {
             mapInstanceRef.current.removeLayer(layer);

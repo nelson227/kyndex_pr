@@ -84,12 +84,12 @@ body {
 
 /* Remove default body background */
 body {
-  @apply bg-black;
+  background-color: black;
 }
 
 /* Smooth transitions */
 * {
-  @apply transition-colors duration-300;
+  transition: color 0.3s;
 }
 
 /* Transitions */
