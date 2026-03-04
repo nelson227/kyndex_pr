@@ -36,6 +36,7 @@ export const API_ENDPOINTS = {
   GENERATE_HOMEPAGE_SERVICES: '/service-requests/homepage/generate-services',
 
   // Messaging
+  GET_USERS_FOR_MESSAGING: '/messages/users',
   GET_CONVERSATIONS: '/messages/conversations',
   GET_CONVERSATION: (id: string) => `/messages/conversations/${id}`,
   GET_MESSAGES: (convId: string) => `/messages/conversations/${convId}/messages`,

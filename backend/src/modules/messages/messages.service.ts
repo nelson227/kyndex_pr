@@ -5,6 +5,28 @@ import { PrismaService } from '@/common/database/prisma.service';
 export class MessagesService {
   constructor(private prisma: PrismaService) {}
 
+  async getAvailableUsers(userId: string) {
+    const users = await this.prisma.user.findMany({
+      where: {
+        id: { not: userId }, // Exclude current user
+      },
+      select: {
+        id: true,
+        email: true,
+        profile: {
+          select: {
+            firstName: true,
+            lastName: true,
+            avatarUrl: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return users;
+  }
+
   async getConversations(userId: string) {
     const conversations = await (this.prisma as any).conversation.findMany({
       where: {

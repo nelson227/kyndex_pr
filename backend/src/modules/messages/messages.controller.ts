@@ -18,6 +18,15 @@ import { MessagesService } from './messages.service';
 export class MessagesController {
   constructor(private messagesService: MessagesService) {}
 
+  @Get('users')
+  @ApiResponse({
+    status: 200,
+    description: 'Get all available users for messaging (excluding current user)',
+  })
+  async getAvailableUsers(@CurrentUser() user: any) {
+    return this.messagesService.getAvailableUsers(user.id);
+  }
+
   @Get('conversations')
   @ApiResponse({
     status: 200,

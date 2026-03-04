@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import AppLayout from '@/app/app-layout';
 import { createApiClient } from '@/lib/api-client';
 import { useAuth } from '@/hooks/useAuth';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Plus, Search, X } from 'lucide-react';
 
 interface User {
   id: string;
@@ -44,6 +44,11 @@ export function MessagesContent() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
+  const [showNewConversationModal, setShowNewConversationModal] = useState(false);
+  const [availableUsers, setAvailableUsers] = useState<User[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+  const [searchInput, setSearchInput] = useState('');
+  const [loadingUsers, setLoadingUsers] = useState(false);
   const apiClient = useMemo(() => createApiClient(), []);
 
   useEffect(() => {
@@ -65,12 +70,60 @@ export function MessagesContent() {
     }
   }, [conversationId]);
 
+  useEffect(() => {
+    if (showNewConversationModal) {
+      loadAvailableUsers();
+    }
+  }, [showNewConversationModal]);
+
+  useEffect(() => {
+    // Filter users based on search input
+    if (searchInput.trim()) {
+      const filtered = availableUsers.filter((u) =>
+        `${u.profile?.firstName} ${u.profile?.lastName}`.toLowerCase().includes(searchInput.toLowerCase()) ||
+        u.email.toLowerCase().includes(searchInput.toLowerCase())
+      );
+      setFilteredUsers(filtered);
+    } else {
+      setFilteredUsers(availableUsers);
+    }
+  }, [searchInput, availableUsers]);
+
   const loadConversationById = async (convId: string) => {
     try {
       const response = await apiClient.get(`/messages/conversations/${convId}`);
       setSelectedConversation(response.data);
     } catch (error) {
       console.error('Error loading conversation:', error);
+    }
+  };
+
+  const loadAvailableUsers = async () => {
+    try {
+      setLoadingUsers(true);
+      const response = await apiClient.get('/messages/users');
+      setAvailableUsers(response.data);
+      setFilteredUsers(response.data);
+    } catch (error) {
+      console.error('Error loading available users:', error);
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  const handleStartConversation = async (otherUserId: string) => {
+    try {
+      const response = await apiClient.post('/messages/conversations', {
+        otherUserId,
+      });
+      
+      const newConversation = response.data;
+      setConversations([newConversation, ...conversations]);
+      setSelectedConversation(newConversation);
+      setShowNewConversationModal(false);
+      setSearchInput('');
+    } catch (error) {
+      console.error('Error creating conversation:', error);
     }
   };
 
@@ -179,8 +232,15 @@ export function MessagesContent() {
                   {!selectedConversation ? (
                     <>
                       {/* Header */}
-                      <div className="px-4 py-4 border-b border-gray-200">
+                      <div className="px-4 py-4 border-b border-gray-200 flex items-center justify-between">
                         <h2 className="font-semibold text-gray-900">Conversations</h2>
+                        <button
+                          onClick={() => setShowNewConversationModal(true)}
+                          className="p-2 hover:bg-blue-50 rounded-lg transition text-blue-600"
+                          title="Nouvelle conversation"
+                        >
+                          <Plus size={24} />
+                        </button>
                       </div>
                       
                       {/* Conversations List */}
@@ -347,14 +407,30 @@ export function MessagesContent() {
               {/* Desktop View - Grid Layout */}
               <div className="hidden lg:grid grid-cols-3 gap-4 h-full p-4">
                 {/* Conversations List */}
-                <div className="col-span-1 bg-white rounded-lg border border-gray-200 overflow-y-auto">
+                <div className="col-span-1 bg-white rounded-lg border border-gray-200 overflow-y-auto flex flex-col">
+                  {/* Header with Add Button */}
+                  <div className="px-4 py-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
+                    <h2 className="font-semibold text-gray-900">Conversations</h2>
+                    <button
+                      onClick={() => setShowNewConversationModal(true)}
+                      className="p-2 hover:bg-blue-50 rounded-lg transition text-blue-600"
+                      title="Nouvelle conversation"
+                    >
+                      <Plus size={20} />
+                    </button>
+                  </div>
+
+                  {/* Conversations List */}
+                  <div className="flex-1 overflow-y-auto">
                   {conversations.length === 0 ? (
                     <div className="flex items-center justify-center h-full text-center">
                       <div>
                         <div className="text-4xl mb-2">💬</div>
                         <p className="text-gray-600">Aucune conversation</p>
                         <p className="text-gray-500 text-sm mt-2">
-                          Commencez une conversation en cliquant sur "Message"
+                          Commencez une conversation en cliquant sur
+                          <br />
+                          le bouton <Plus className="inline" size={16} />
                         </p>
                       </div>
                     </div>
@@ -405,6 +481,7 @@ export function MessagesContent() {
                       );
                     })
                   )}
+                  </div>
                 </div>
 
                 {/* Chat Area */}
@@ -515,6 +592,90 @@ export function MessagesContent() {
                 )}
               </div>
             </>
+          )}
+
+          {/* New Conversation Modal */}
+          {showNewConversationModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg shadow-xl w-96 max-w-full mx-4 max-h-96 flex flex-col">
+                {/* Modal Header */}
+                <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900">Nouvelle conversation</h3>
+                  <button
+                    onClick={() => {
+                      setShowNewConversationModal(false);
+                      setSearchInput('');
+                    }}
+                    className="p-1 hover:bg-gray-100 rounded-lg transition"
+                  >
+                    <X size={20} className="text-gray-600" />
+                  </button>
+                </div>
+
+                {/* Search Input */}
+                <div className="px-6 py-3 border-b border-gray-200">
+                  <div className="relative">
+                    <Search size={18} className="absolute left-3 top-3 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Chercher un utilisateur..."
+                      value={searchInput}
+                      onChange={(e) => setSearchInput(e.target.value)}
+                      autoFocus
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Users List */}
+                <div className="flex-1 overflow-y-auto">
+                  {loadingUsers ? (
+                    <div className="flex items-center justify-center h-full">
+                      <div className="text-center">
+                        <div className="inline-block animate-spin mb-2">
+                          <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                        </div>
+                        <p className="text-gray-600 text-sm">Chargement...</p>
+                      </div>
+                    </div>
+                  ) : filteredUsers.length === 0 ? (
+                    <div className="flex items-center justify-center h-full">
+                      <div className="text-center">
+                        <p className="text-gray-600">
+                          {searchInput ? 'Aucun utilisateur trouvé' : 'Aucun utilisateur disponible'}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    filteredUsers.map((u) => (
+                      <button
+                        key={u.id}
+                        onClick={() => handleStartConversation(u.id)}
+                        className="w-full text-left px-6 py-3 border-b border-gray-100 hover:bg-blue-50 transition flex items-center gap-3"
+                      >
+                        {u.profile?.avatarUrl ? (
+                          <img
+                            src={`http://localhost:3001${u.profile.avatarUrl}`}
+                            alt={u.profile.firstName}
+                            className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-sm flex-shrink-0">
+                            👤
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-gray-900 truncate">
+                            {u.profile?.firstName} {u.profile?.lastName}
+                          </p>
+                          <p className="text-sm text-gray-600 truncate">{u.email}</p>
+                        </div>
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
           )}
         </div>
       </div>
