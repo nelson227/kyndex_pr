@@ -467,11 +467,11 @@ function Modal({ modalType, onClose, user }: ModalProps) {
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition flex-shrink-0"
+            className="ml-4 p-2 hover:bg-red-100 text-gray-600 hover:text-red-600 rounded-lg transition flex-shrink-0"
             title="Fermer"
             aria-label="Fermer"
           >
-            <X className="w-6 h-6" />
+            <X className="w-8 h-8" />
           </button>
         </div>
 
