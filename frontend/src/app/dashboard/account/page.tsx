@@ -2,8 +2,10 @@
 
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import { createApiClient } from '@/lib/api-client';
+import { setUserStorage } from '@/lib/user-storage';
 
 type ModalType = 'personal' | 'balance' | 'credit' | 'balance-detail' | 'documents' | 'notifications' | 'security' | 'payment' | null;
 
@@ -30,7 +32,7 @@ export default function AccountPage() {
         </div>
       </div>
 
-      {/* Quick Stats */}
+      {/* Quick Stats - 3 colonnes */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <button 
           onClick={() => setActiveModal('personal')}
@@ -58,14 +60,14 @@ export default function AccountPage() {
         </button>
       </div>
 
-      {/* Account Settings Grid */}
+      {/* Account Settings Grid - 2 colonnes */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Left Column */}
         <div className="space-y-6">
           {/* Personal Info */}
           <button 
             onClick={() => setActiveModal('personal')}
-            className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left"
+            className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left w-full"
           >
             <div className="flex items-center gap-3 mb-4">
               <span className="text-2xl">👤</span>
@@ -82,7 +84,7 @@ export default function AccountPage() {
           {/* Payment Methods */}
           <button 
             onClick={() => setActiveModal('payment')}
-            className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left"
+            className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left w-full"
           >
             <div className="flex items-center gap-3 mb-4">
               <span className="text-2xl">💳</span>
@@ -99,14 +101,14 @@ export default function AccountPage() {
           {/* Notifications */}
           <button 
             onClick={() => setActiveModal('notifications')}
-            className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left"
+            className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left w-full"
           >
             <div className="flex items-center gap-3 mb-4">
               <span className="text-2xl">🔔</span>
               <h3 className="text-lg font-semibold text-gray-900">Gérer mes notifications</h3>
             </div>
             <p className="text-sm text-gray-600 mb-4">
-              Choisissez la façon dont vous souhaite être contacté
+              Choisissez la façon dont vous souhaitement être contacté
             </p>
             <span className="text-cyan-600 hover:text-cyan-700 font-semibold text-sm">
               Paramétrer →
@@ -119,7 +121,7 @@ export default function AccountPage() {
           {/* Balance */}
           <button 
             onClick={() => setActiveModal('balance-detail')}
-            className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left"
+            className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left w-full"
           >
             <div className="flex items-center gap-3 mb-4">
               <span className="text-2xl">💰</span>
@@ -136,7 +138,7 @@ export default function AccountPage() {
           {/* Documents */}
           <button 
             onClick={() => setActiveModal('documents')}
-            className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left"
+            className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left w-full"
           >
             <div className="flex items-center gap-3 mb-4">
               <span className="text-2xl">📄</span>
@@ -153,7 +155,7 @@ export default function AccountPage() {
           {/* Security */}
           <button 
             onClick={() => setActiveModal('security')}
-            className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left"
+            className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left w-full"
           >
             <div className="flex items-center gap-3 mb-4">
               <span className="text-2xl">🛡️</span>
@@ -193,6 +195,54 @@ interface ModalProps {
 }
 
 function Modal({ modalType, onClose, user }: ModalProps) {
+  const [formData, setFormData] = useState({
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+  });
+  const [isSaving, setIsSaving] = useState(false);
+  const [message, setMessage] = useState('');
+  const apiClient = createApiClient();
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSavePersonal = async () => {
+    try {
+      setIsSaving(true);
+      setMessage('');
+
+      // Appel API pour sauvegarder les modifications
+      const response = await apiClient.put('/auth/profile', formData);
+
+      // Mettre à jour les données de l'utilisateur localement
+      const updatedUser = {
+        ...user,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+      };
+
+      // Sauvegarder dans localStorage
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      localStorage.setItem('userEmail', formData.email); // Pour la connexion
+
+      setMessage('✅ Modifications enregistrées avec succès !');
+      setTimeout(() => {
+        onClose();
+      }, 1500);
+    } catch (error: any) {
+      setMessage('❌ Erreur lors de la sauvegarde. Veuillez réessayer.');
+      console.error('Erreur:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const getModalContent = () => {
     switch (modalType) {
       case 'personal':
@@ -203,22 +253,56 @@ function Modal({ modalType, onClose, user }: ModalProps) {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Prénom</label>
-                <input type="text" defaultValue={user?.firstName} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent" />
+                <input
+                  type="text"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none"
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Nom</label>
-                <input type="text" defaultValue={user?.lastName} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent" />
+                <input
+                  type="text"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none"
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input type="email" defaultValue={user?.email} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent" />
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none"
+                />
+                <p className="text-xs text-gray-500 mt-1">⚠️ Changer d'email modifiera vos identifiants de connexion</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
-                <input type="tel" placeholder="+33 6 XX XX XX XX" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent" />
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  placeholder="+33 6 XX XX XX XX"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none"
+                />
               </div>
-              <button className="w-full mt-4 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition">
-                Enregistrer les modifications
+              {message && (
+                <div className={`p-3 rounded-lg text-sm ${message.includes('✅') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                  {message}
+                </div>
+              )}
+              <button
+                onClick={handleSavePersonal}
+                disabled={isSaving}
+                className="w-full mt-4 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition disabled:opacity-50"
+              >
+                {isSaving ? '⏳ Enregistrement...' : 'Enregistrer les modifications'}
               </button>
             </div>
           )
@@ -299,19 +383,19 @@ function Modal({ modalType, onClose, user }: ModalProps) {
           content: (
             <div className="space-y-4">
               <label className="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" defaultChecked className="w-4 h-4" />
+                <input type="checkbox" defaultChecked className="w-4 h-4 cursor-pointer" />
                 <span className="text-gray-700">Notifications par email</span>
               </label>
               <label className="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" defaultChecked className="w-4 h-4" />
+                <input type="checkbox" defaultChecked className="w-4 h-4 cursor-pointer" />
                 <span className="text-gray-700">Notifications par SMS</span>
               </label>
               <label className="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" defaultChecked className="w-4 h-4" />
+                <input type="checkbox" defaultChecked className="w-4 h-4 cursor-pointer" />
                 <span className="text-gray-700">Notifications de messages</span>
               </label>
               <label className="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" className="w-4 h-4" />
+                <input type="checkbox" className="w-4 h-4 cursor-pointer" />
                 <span className="text-gray-700">Notification marketing</span>
               </label>
               <button className="w-full mt-4 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition">
@@ -376,6 +460,7 @@ function Modal({ modalType, onClose, user }: ModalProps) {
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition"
+            title="Fermer"
           >
             <X className="w-6 h-6" />
           </button>
@@ -388,4 +473,4 @@ function Modal({ modalType, onClose, user }: ModalProps) {
       </div>
     </div>
   );
-}
+}}
