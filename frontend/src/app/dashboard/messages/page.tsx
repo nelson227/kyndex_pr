@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { getUserStorage, setUserStorage } from '@/lib/user-storage';
 import { Send, Search, Plus, X, Smile, Image as ImageIcon, Video } from 'lucide-react';
+import { ContactProfilePhoto } from '@/components/ContactProfilePhoto';
 
 interface Message {
   id: string;
@@ -408,7 +409,12 @@ export default function MessagesPage() {
                       : 'hover:bg-gray-800/50 border-transparent hover:border-cyan-500/20'
                   }`}
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-start justify-between gap-3">
+                    <ContactProfilePhoto 
+                      contactId={conv.otherUserId} 
+                      contactName={conv.otherUserName}
+                      size="sm"
+                    />
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-white truncate">{conv.otherUserName}</p>
                       <p className="text-xs text-gray-400 truncate mt-1">
@@ -438,11 +444,20 @@ export default function MessagesPage() {
             <>
               {/* Chat Header */}
               <div className="p-6 border-b border-cyan-500/10 bg-gradient-to-r from-cyan-500/5 to-blue-500/5 backdrop-blur">
-                <h3 className="text-xl font-bold text-white">{selectedConversation.otherUserName}</h3>
-                <p className="text-xs text-cyan-400 mt-1 flex items-center gap-2">
-                  <span className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></span>
-                  En ligne
-                </p>
+                <div className="flex items-center gap-3">
+                  <ContactProfilePhoto 
+                    contactId={selectedConversation.otherUserId} 
+                    contactName={selectedConversation.otherUserName}
+                    size="sm"
+                  />
+                  <div>
+                    <h3 className="text-xl font-bold text-white">{selectedConversation.otherUserName}</h3>
+                    <p className="text-xs text-cyan-400 mt-1 flex items-center gap-2">
+                      <span className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></span>
+                      En ligne
+                    </p>
+                  </div>
+                </div>
               </div>
 
               {/* Messages Area */}
