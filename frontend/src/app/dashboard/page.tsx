@@ -7,6 +7,7 @@ import { useUnreadCount } from '@/hooks/useUnreadCount';
 import ProviderProfileModal from '@/components/ProviderProfileModal';
 import ServiceRequestsListModal from '@/components/ServiceRequestsListModal';
 import { CreateServiceRequestModal } from '@/components/CreateServiceRequestModal';
+import { ProfilePhotoUpload } from '@/components/ProfilePhotoUpload';
 
 // Mock data pour les stats du dashboard
 const getStatsCards = (unreadMessages: number, calendarNotes: number): any[] => [
@@ -499,11 +500,20 @@ export default function DashboardHome() {
 
   return (
     <div className="space-y-3 xs2:space-y-4 sm:space-y-6 md:space-y-8">
-      {/* Header - Bienvenue */}
+      {/* Header - Bienvenue avec Photo de Profil */}
       <div className="px-2 xs2:px-3 sm:px-4 md:px-0">
-        <p className="text-gray-400 text-xs md:text-sm mb-0.5 xs2:mb-1">Bienvenue</p>
-        <h1 className="text-lg xs2:text-xl sm:text-2xl md:text-4xl font-bold text-white">Acceuil</h1>
-        <p className="text-gray-400 text-xs xs2:text-xs2 sm:text-sm md:text-base mt-1 xs2:mt-1.5 sm:mt-2">Suivez l'activité, vos missions et vos échanges en un coup d'oeil.</p>
+        <div className="flex items-start justify-between gap-3 xs2:gap-4">
+          <div className="flex-1">
+            <p className="text-gray-400 text-xs md:text-sm mb-0.5 xs2:mb-1">Bienvenue</p>
+            <h1 className="text-lg xs2:text-xl sm:text-2xl md:text-4xl font-bold text-white">Acceuil</h1>
+            <p className="text-gray-400 text-xs xs2:text-xs2 sm:text-sm md:text-base mt-1 xs2:mt-1.5 sm:mt-2">Suivez l'activité, vos missions et vos échanges en un coup d'oeil.</p>
+          </div>
+          
+          {/* Photo de Profil */}
+          <div className="flex-shrink-0 pt-1">
+            <ProfilePhotoUpload size="sm" />
+          </div>
+        </div>
       </div>
 
       {/* Stats Cards */}
