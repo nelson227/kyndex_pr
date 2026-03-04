@@ -143,20 +143,20 @@ export default function CalendarPage() {
     }
 
     return (
-      <div key={month} className="bg-gray-900 border border-gray-800 rounded-lg p-3">
-        <h3 className="text-center text-sm font-bold text-white mb-2">{monthNames[month]}</h3>
+      <div key={month} className="bg-gray-900 border border-gray-800 rounded-lg p-2 md:p-3">
+        <h3 className="text-center text-xs md:text-sm font-bold text-white mb-2">{monthNames[month]}</h3>
         
         {/* Mini en-têtes des jours (même ligne) */}
-        <div className="grid grid-cols-7 gap-1 mb-2">
+        <div className="grid grid-cols-7 gap-0.5 md:gap-1 mb-2">
           {dayNames.map((day) => (
-            <div key={day} className="text-center text-gray-500 text-xs py-1">
+            <div key={day} className="text-center text-gray-500 text-xs md:text-xs py-0.5 md:py-1">
               {day.substring(0, 1)}
             </div>
           ))}
         </div>
 
         {/* Grille des jours */}
-        <div className="grid grid-cols-7 gap-1">
+        <div className="grid grid-cols-7 gap-0.5 md:gap-1">
           {calendarDays.map((day, idx) => {
             const dateKey = day ? formatDateKey(currentYear, month, day) : null;
             const dayNotes = dateKey ? getNotesForDate(dateKey) : [];
@@ -167,7 +167,7 @@ export default function CalendarPage() {
               <div
                 key={idx}
                 onClick={() => day && handleDateClick(month, day)}
-                className={`aspect-square rounded text-xs font-semibold transition cursor-pointer flex items-center justify-center relative group ${
+                className={`aspect-square rounded text-xs md:text-sm font-semibold transition cursor-pointer flex items-center justify-center relative group ${
                   !day
                     ? 'bg-gray-950 border border-gray-900'
                     : isSelected
@@ -225,7 +225,7 @@ export default function CalendarPage() {
           </div>
 
           {/* Grille 3x4 des 12 mois */}
-          <div className="grid grid-cols-3 gap-4 bg-gray-900/50 rounded-xl p-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 bg-gray-900/50 rounded-xl p-4 md:p-6">
             {Array.from({ length: 12 }).map((_, month) => renderMonth(month))}
           </div>
         </div>
