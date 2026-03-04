@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { createApiClient } from '@/lib/api-client';
 import { setUserStorage } from '@/lib/user-storage';
+import { ProfilePhotoUpload } from '@/components/ProfilePhotoUpload';
 
 type ModalType = 'personal' | 'balance' | 'credit' | 'balance-detail' | 'documents' | 'notifications' | 'security' | 'payment' | null;
 
@@ -24,11 +25,10 @@ export default function AccountPage() {
       {/* Profile Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900">Gérer mon compte</h1>
-          <p className="text-gray-600 mt-2">{user?.email}</p>
+          <h1 className="text-4xl font-bold text-white">Gérer mon compte</h1>
         </div>
-        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-3xl font-bold">
-          {user?.firstName?.charAt(0).toUpperCase()}
+        <div className="flex-shrink-0">
+          <ProfilePhotoUpload size="md" />
         </div>
       </div>
 
