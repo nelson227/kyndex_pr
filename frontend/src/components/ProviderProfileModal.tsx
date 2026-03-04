@@ -44,10 +44,10 @@ interface ProviderProfileModalProps {
   provider: Provider | null;
   isOpen: boolean;
   onClose: () => void;
-  onDemandService?: () => void;
+  onChat?: (providerId: number, providerName: string) => void;
 }
 
-export default function ProviderProfileModal({ provider, isOpen, onClose, onDemandService }: ProviderProfileModalProps) {
+export default function ProviderProfileModal({ provider, isOpen, onClose, onChat }: ProviderProfileModalProps) {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
   if (!isOpen || !provider) return null;
@@ -134,7 +134,7 @@ export default function ProviderProfileModal({ provider, isOpen, onClose, onDema
 
               {/* Tags */}
               <div className="flex flex-wrap gap-2">
-                {provider.tags.map((tag, idx) => (
+                {(provider.tags || []).map((tag, idx) => (
                   <span key={idx} className="px-3 py-1 bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-medium rounded-full">
                     • {tag}
                   </span>
@@ -388,11 +388,23 @@ export default function ProviderProfileModal({ provider, isOpen, onClose, onDema
             )}
           </div>
 
-          {/* Bouton d'action */}
-          <button onClick={onDemandService} className="w-full bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white font-bold py-3 px-6 rounded-xl transition transform hover:scale-105 flex items-center justify-center gap-2">
-            <Zap size={20} />
-            Demander un service
-          </button>
+          {/* Boutons d'action */}
+          <div className="grid grid-cols-2 gap-4">
+            <button 
+              onClick={() => {
+                if (onChat && provider) {
+                  onChat(provider.id, provider.name);
+                }
+              }}
+              className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-xl transition transform hover:scale-105 flex items-center justify-center gap-2"
+            >
+              💬 Discuter
+            </button>
+            <button className="bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white font-bold py-3 px-6 rounded-xl transition transform hover:scale-105 flex items-center justify-center gap-2">
+              <Zap size={20} />
+              Demander
+            </button>
+          </div>
 
           {/* Conditions de sécurité */}
           <div className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-cyan-500/20 rounded-xl p-4 text-center text-xs text-gray-400">

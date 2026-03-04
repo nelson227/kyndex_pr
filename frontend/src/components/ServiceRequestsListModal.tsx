@@ -41,9 +41,9 @@ const getStatusColor = (status: string) => {
     case 'NOUVEAU':
       return 'bg-red-500/20 text-red-400 border border-red-500/50';
     case 'A_VALIDER':
-      return 'bg-blue-500/20 text-blue-400 border border-blue-500/50';
+      return 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/50';
     case 'EN_ATTENTE':
-      return 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/50';
+      return 'bg-green-500/20 text-green-400 border border-green-500/50';
     default:
       return 'bg-gray-500/20 text-gray-400 border border-gray-500/50';
   }
@@ -96,40 +96,30 @@ const ServiceRequestsListModal: React.FC<ServiceRequestsListModalProps> = ({ isO
       console.log('ServiceRequestsListModal: Fetching requests from API...');
       console.log('API Endpoint:', API_ENDPOINTS.GET_SERVICE_REQUESTS);
       
-      const response = await apiClient.get(API_ENDPOINTS.GET_SERVICE_REQUESTS);
+      // Charger depuis localStorage d'abord
+      const localRequests = JSON.parse(localStorage.getItem('userServiceRequests') || '[]');
       
-      console.log('ServiceRequestsListModal: API Response received:', response.status);
-      
-      if (Array.isArray(response.data)) {
-        console.log('ServiceRequestsListModal: Found', response.data.length, 'requests');
-        setRequests(response.data);
-      } else {
-        console.warn('ServiceRequestsListModal: Unexpected response format:', typeof response.data);
-        setRequests([]);
+      try {
+        const response = await apiClient.get(API_ENDPOINTS.GET_SERVICE_REQUESTS);
+        
+        console.log('ServiceRequestsListModal: API Response received:', response.status);
+        
+        if (Array.isArray(response.data)) {
+          console.log('ServiceRequestsListModal: Found', response.data.length, 'requests from API');
+          setRequests([...localRequests, ...response.data]);
+        } else {
+          setRequests(localRequests);
+        }
+      } catch (apiError) {
+        console.log('ServiceRequestsListModal: API error, using localStorage only');
+        setRequests(localRequests);
       }
     } catch (error: any) {
-      console.error('ServiceRequestsListModal: Error loading requests:', {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        message: error.message,
-        code: error.code,
-      });
+      console.error('ServiceRequestsListModal: Error loading requests:', error);
       
-      // Pour le débogage : afficher l'erreur
-      if (error.response?.status === 404) {
-        setError('Endpoint not found (404)');
-      } else if (error.response?.status === 401) {
-        console.log('ServiceRequestsListModal: Got 401, interceptor should handle it');
-        setError('Unauthorized');
-      } else if (error.response?.status === 500) {
-        setError('Server error');
-      } else {
-        setError(error.message || 'Unknown error');
-      }
-      
-      // Toujours afficher une liste vide en cas d'erreur
-      setRequests([]);
+      // Toujours afficher les demandes locales en cas d'erreur
+      const localRequests = JSON.parse(localStorage.getItem('userServiceRequests') || '[]');
+      setRequests(localRequests);
     } finally {
       setLoading(false);
     }

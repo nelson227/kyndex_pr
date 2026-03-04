@@ -8,6 +8,7 @@ import { getUserStorage, setUserStorage } from '@/lib/user-storage';
 import axios from 'axios';
 import { API_ENDPOINTS } from '@/lib/endpoints';
 import { createApiClient } from '@/lib/api-client';
+import dynamic from 'next/dynamic';
 
 /**
  * Gère le sessionId pour les utilisateurs non connectés
@@ -512,7 +513,7 @@ interface Provider {
   price: string;
 }
 
-const ProviderCard = ({ provider }: { provider: Provider }) => {
+const ProviderCard = ({ provider, onContact }: { provider: Provider; onContact: (provider: Provider) => void }) => {
   const categories = ['Design', 'Développement', 'Marketing', 'Coaching', 'Writing'];
   const colors = [
     'from-cyan-500/20 to-cyan-600/20 border-cyan-400/50',
@@ -547,7 +548,9 @@ const ProviderCard = ({ provider }: { provider: Provider }) => {
         <span className="text-white font-bold text-lg">{provider.price}</span>
       </div>
 
-      <button className="w-full mt-4 bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-400 hover:to-cyan-500 text-white font-bold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2 text-sm">
+      <button 
+        onClick={() => onContact(provider)}
+        className="w-full mt-4 bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-400 hover:to-cyan-500 text-white font-bold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2 text-sm">
         Contacter <ArrowRight size={16} />
       </button>
     </div>
@@ -930,6 +933,184 @@ const ServiceFinderAssistant = ({ router }: { router: any }) => {
   );
 };
 
+const InterventionMap = ({ city }: { city?: string }) => {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return (
+      <div className="w-full h-48 bg-gray-900/50 border border-gray-800/50 rounded-lg overflow-hidden flex items-center justify-center">
+        <span className="text-gray-500">Chargement de la carte...</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full h-64 bg-gray-900/50 border border-gray-800/50 rounded-lg overflow-hidden">
+      {typeof window !== 'undefined' && (
+        <iframe
+          width="100%"
+          height="100%"
+          frameBorder="0"
+          src={`https://www.openstreetmap.org/export/embed.html?bbox=-0.533649,51.281896,0.224647,51.692342&layer=mapnik`}
+          style={{ border: 0 }}
+          allowFullScreen={true}
+          loading="lazy"
+        />
+      )}
+    </div>
+  );
+};
+
+// Provider Profile Modal Component
+const ProviderProfileModal = ({ 
+  isOpen, 
+  onClose, 
+  provider, 
+  onRequestService 
+}: { 
+  isOpen: boolean; 
+  onClose: () => void; 
+  provider: Provider | null; 
+  onRequestService: () => void;
+}) => {
+  if (!isOpen || !provider) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-black border border-gray-800/50 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="sticky top-0 flex items-center justify-between p-6 border-b border-gray-800/50 bg-black/80 backdrop-blur">
+          <h2 className="text-2xl font-bold text-white">Profil du prestataire</h2>
+          <button 
+            onClick={onClose}
+            className="text-gray-400 hover:text-white transition text-2xl"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 space-y-6">
+          {/* Profile Header */}
+          <div className="flex gap-6">
+            <div className="w-32 h-32 rounded-xl bg-gradient-to-br from-cyan-400 to-purple-600 flex-shrink-0" />
+            <div className="flex-1">
+              <h3 className="text-3xl font-bold text-white mb-2">{provider.name}</h3>
+              <p className="text-cyan-300 text-lg font-medium mb-4">{provider.role}</p>
+              
+              <div className="flex items-center gap-6 mb-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-yellow-400">⭐</span>
+                  <span className="text-white font-bold text-lg">{provider.rating}</span>
+                  <span className="text-gray-400 text-sm">({provider.reviewCount} avis)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-white font-bold text-lg">⏱️</span>
+                  <span className="text-gray-300">2h réponse</span>
+                </div>
+              </div>
+
+              <div className="flex gap-2 mb-4">
+                <span className="px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 text-sm font-medium">
+                  • {provider.category}
+                </span>
+                <span className="px-3 py-1 rounded-full bg-purple-500/20 border border-purple-400/50 text-purple-300 text-sm font-medium">
+                  • Efficace
+                </span>
+              </div>
+
+              <p className="text-white text-2xl font-bold">{provider.price}</p>
+            </div>
+          </div>
+
+          {/* About Section */}
+          <div className="bg-gray-900/50 border border-gray-800/50 rounded-lg p-4">
+            <h4 className="text-white font-bold text-lg mb-3">À propos</h4>
+            <p className="text-gray-300 leading-relaxed">{provider.description}</p>
+          </div>
+
+          {/* Experience */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-cyan-400">⏱️</span>
+              <h4 className="text-white font-bold text-lg">Expérience</h4>
+            </div>
+            <p className="text-gray-300">6 ans d'expérience</p>
+          </div>
+
+          {/* Client Commitments */}
+          <div>
+            <h4 className="text-white font-bold text-lg mb-3">Engagements clients</h4>
+            <div className="flex flex-wrap gap-2">
+              {['Design innovant', 'Durabilité', 'Respect de l\'environnement'].map((commitment, i) => (
+                <span key={i} className="px-3 py-2 rounded-lg bg-purple-500/20 border border-purple-400/50 text-purple-300 text-sm font-medium">
+                  {commitment}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Equipment Section */}
+          <div>
+            <h4 className="text-white font-bold text-lg mb-3">Équipements</h4>
+            <div className="flex flex-wrap gap-2">
+              {['Tondeuse', 'Taille-haie', 'Binette', 'Arroseurs intelligents'].map((equipment, i) => (
+                <span key={i} className="px-3 py-2 rounded-lg bg-gray-900/50 border border-gray-800/50 text-gray-300 text-sm">
+                  {equipment}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Intervention Zone */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <span>🗺️</span>
+              <h4 className="text-white font-bold text-lg">Zone d'intervention</h4>
+            </div>
+            <InterventionMap city={provider.category} />
+          </div>
+
+          {/* Reviews Section */}
+          <div>
+            <h4 className="text-white font-bold text-lg mb-4">Avis clients ({provider.reviewCount})</h4>
+            <div className="space-y-4">
+              {[1, 2].map((i) => (
+                <div key={i} className="bg-gray-900/50 border border-gray-800/50 rounded-lg p-4">
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-purple-600 flex-shrink-0" />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <p className="text-white font-semibold">Client {i}</p>
+                        <span className="text-yellow-400">{'⭐'.repeat(Math.floor(4.8 + i * 0.1))}</span>
+                      </div>
+                      <p className="text-gray-400 text-sm">
+                        Excellent service, très professionnel et à l'écoute. Recommande vivement !
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* CTA Button */}
+          <button
+            onClick={onRequestService}
+            className="w-full bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-400 hover:to-cyan-500 text-white font-bold py-3 px-6 rounded-lg transition mt-6"
+          >
+            Demander un service
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Auth Modal Component
 const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean; onClose: () => void; initialMode?: 'login' | 'signup' }) => {
   const router = useRouter();
@@ -1187,6 +1368,21 @@ export default function Home() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showProviderModal, setShowProviderModal] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
+
+  const handleContactProvider = (provider: Provider) => {
+    // Sauvegarder le prestataire pour l'ouvrir automatiquement après connexion
+    localStorage.setItem('pendingProviderContact', JSON.stringify(provider));
+    setSelectedProvider(provider);
+    setShowProviderModal(true);
+  };
+
+  const handleRequestService = () => {
+    setShowProviderModal(false);
+    setAuthMode('signup');
+    setShowAuthModal(true);
+  };
 
   useEffect(() => {
     // Check if user is logged in
@@ -1366,7 +1562,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {providers.slice(0, 8).map((provider) => (
-              <ProviderCard key={provider.id} provider={provider} />
+              <ProviderCard key={provider.id} provider={provider} onContact={handleContactProvider} />
             ))}
           </div>
 
@@ -1532,6 +1728,12 @@ export default function Home() {
       </div>
 
       {/* Modals */}
+      <ProviderProfileModal 
+        isOpen={showProviderModal} 
+        onClose={() => setShowProviderModal(false)} 
+        provider={selectedProvider}
+        onRequestService={handleRequestService}
+      />
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} initialMode={authMode} />
     </div>
   );

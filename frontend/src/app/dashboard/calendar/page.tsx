@@ -14,7 +14,7 @@ interface Note {
 
 export default function CalendarPage() {
   const { user } = useAuth();
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [showNoteForm, setShowNoteForm] = useState(false);
@@ -101,16 +101,16 @@ export default function CalendarPage() {
     saveNotes(updatedNotes);
   };
 
-  const handlePrevMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1));
+  const handlePrevYear = () => {
+    setCurrentYear(currentYear - 1);
   };
 
-  const handleNextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1));
+  const handleNextYear = () => {
+    setCurrentYear(currentYear + 1);
   };
 
-  const handleDateClick = (day: number) => {
-    const dateKey = formatDateKey(currentDate.getFullYear(), currentDate.getMonth(), day);
+  const handleDateClick = (month: number, day: number) => {
+    const dateKey = formatDateKey(currentYear, month, day);
     setSelectedDate(dateKey);
     setShowNoteForm(true);
   };
@@ -122,22 +122,76 @@ export default function CalendarPage() {
 
   const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
 
-  const daysInMonth = getDaysInMonth(currentDate);
-  const firstDay = getFirstDayOfMonth(currentDate);
-  const calendarDays = [];
-
-  // Ajouter les espaces vides pour les jours du mois précédent
-  for (let i = 0; i < firstDay; i++) {
-    calendarDays.push(null);
-  }
-
-  // Ajouter les jours du mois
-  for (let day = 1; day <= daysInMonth; day++) {
-    calendarDays.push(day);
-  }
-
   const selectedDateNotes = selectedDate ? getNotesForDate(selectedDate) : [];
   const todayKey = formatDateKey(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+
+  // Fonction pour rendre un mois
+  const renderMonth = (month: number) => {
+    const date = new Date(currentYear, month, 1);
+    const daysInCurrentMonth = getDaysInMonth(date);
+    const firstDay = getFirstDayOfMonth(date);
+    const calendarDays = [];
+
+    // Ajouter les espaces vides
+    for (let i = 0; i < firstDay; i++) {
+      calendarDays.push(null);
+    }
+
+    // Ajouter les jours du mois
+    for (let day = 1; day <= daysInCurrentMonth; day++) {
+      calendarDays.push(day);
+    }
+
+    return (
+      <div key={month} className="bg-gray-900 border border-gray-800 rounded-lg p-3">
+        <h3 className="text-center text-sm font-bold text-white mb-2">{monthNames[month]}</h3>
+        
+        {/* Mini en-têtes des jours (même ligne) */}
+        <div className="grid grid-cols-7 gap-1 mb-2">
+          {dayNames.map((day) => (
+            <div key={day} className="text-center text-gray-500 text-xs py-1">
+              {day.substring(0, 1)}
+            </div>
+          ))}
+        </div>
+
+        {/* Grille des jours */}
+        <div className="grid grid-cols-7 gap-1">
+          {calendarDays.map((day, idx) => {
+            const dateKey = day ? formatDateKey(currentYear, month, day) : null;
+            const dayNotes = dateKey ? getNotesForDate(dateKey) : [];
+            const isToday = dateKey === todayKey;
+            const isSelected = dateKey === selectedDate;
+
+            return (
+              <div
+                key={idx}
+                onClick={() => day && handleDateClick(month, day)}
+                className={`aspect-square rounded text-xs font-semibold transition cursor-pointer flex items-center justify-center relative group ${
+                  !day
+                    ? 'bg-gray-950 border border-gray-900'
+                    : isSelected
+                    ? 'bg-cyan-500/30 border border-cyan-500 text-cyan-300'
+                    : isToday
+                    ? 'bg-purple-500/30 border border-purple-500 text-purple-300'
+                    : 'bg-gray-800/50 border border-gray-700 text-gray-300 hover:border-cyan-500/50 hover:bg-gray-800'
+                }`}
+              >
+                {day && (
+                  <>
+                    <span>{day}</span>
+                    {dayNotes.length > 0 && (
+                      <div className="absolute bottom-0.5 w-1 h-1 bg-cyan-400 rounded-full"></div>
+                    )}
+                  </>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-8">
@@ -149,86 +203,30 @@ export default function CalendarPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Calendrier principal */}
+        {/* Calendrier principal - Vue annuelle */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Navigation et titre du mois */}
+          {/* Navigation et titre de l'année */}
           <div className="flex items-center justify-between bg-gray-900 border border-gray-800 rounded-xl p-6">
             <button
-              onClick={handlePrevMonth}
+              onClick={handlePrevYear}
               className="text-gray-400 hover:text-cyan-400 transition text-2xl"
             >
               ←
             </button>
             <h2 className="text-2xl font-bold text-white">
-              {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+              Année {currentYear}
             </h2>
             <button
-              onClick={handleNextMonth}
+              onClick={handleNextYear}
               className="text-gray-400 hover:text-cyan-400 transition text-2xl"
             >
               →
             </button>
           </div>
 
-          {/* Calendrier */}
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-            {/* En-têtes des jours */}
-            <div className="grid grid-cols-7 gap-2 mb-4">
-              {dayNames.map((day) => (
-                <div key={day} className="text-center text-gray-400 font-semibold text-sm py-2">
-                  {day}
-                </div>
-              ))}
-            </div>
-
-            {/* Grille des jours */}
-            <div className="grid grid-cols-7 gap-2">
-              {calendarDays.map((day, idx) => {
-                const dateKey = day
-                  ? formatDateKey(currentDate.getFullYear(), currentDate.getMonth(), day)
-                  : null;
-                const dayNotes = dateKey ? getNotesForDate(dateKey) : [];
-                const isToday = dateKey === todayKey;
-                const isSelected = dateKey === selectedDate;
-
-                return (
-                  <div
-                    key={idx}
-                    onClick={() => day && handleDateClick(day)}
-                    className={`aspect-square rounded-lg border transition cursor-pointer flex flex-col items-center justify-center p-2 relative group ${
-                      !day
-                        ? 'bg-gray-950 border-gray-900'
-                        : isSelected
-                        ? 'bg-cyan-500/20 border-cyan-500'
-                        : isToday
-                        ? 'bg-purple-500/20 border-purple-500'
-                        : 'bg-gray-800/50 border-gray-700 hover:border-cyan-500/50 hover:bg-gray-800'
-                    }`}
-                  >
-                    {day && (
-                      <>
-                        <span className={`text-sm font-semibold ${isToday ? 'text-purple-400' : 'text-white'}`}>
-                          {day}
-                        </span>
-                        {dayNotes.length > 0 && (
-                          <div className="flex gap-1 mt-1 flex-wrap justify-center">
-                            {dayNotes.slice(0, 2).map((note, i) => (
-                              <div
-                                key={i}
-                                className="w-1.5 h-1.5 bg-cyan-400 rounded-full"
-                              ></div>
-                            ))}
-                            {dayNotes.length > 2 && (
-                              <span className="text-xs text-gray-400">+{dayNotes.length - 2}</span>
-                            )}
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+          {/* Grille 3x4 des 12 mois */}
+          <div className="grid grid-cols-3 gap-4 bg-gray-900/50 rounded-xl p-6">
+            {Array.from({ length: 12 }).map((_, month) => renderMonth(month))}
           </div>
         </div>
 

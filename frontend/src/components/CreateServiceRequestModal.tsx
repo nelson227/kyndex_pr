@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { X, Send, MessageSquare, Sparkles } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 import { apiClient } from '@/lib/api-client';
 import { API_ENDPOINTS } from '@/lib/endpoints';
 
@@ -25,6 +26,7 @@ export const CreateServiceRequestModal = ({
   onClose,
   onSuccess,
 }: CreateServiceRequestModalProps) => {
+  const { user } = useAuth();
   const [step, setStep] = useState<'input' | 'brief' | 'publish'>('input');
   const [userDescription, setUserDescription] = useState('');
   const [brief, setBrief] = useState<GeneratedBrief | null>(null);
@@ -111,36 +113,63 @@ export const CreateServiceRequestModal = ({
     setError('');
 
     try {
-      const response = await apiClient.post(
-        API_ENDPOINTS.CREATE_SERVICE_REQUEST,
-        {
-          title: brief.title,
-          description: brief.description,
-          requiredSkills: brief.requiredSkills,
-          budget: brief.estimatedBudget,
-          currency: 'EUR',
-          location: brief.location || '',
-          dueDate: new Date(
-            Date.now() + parseInt(brief.estimatedDuration) * 24 * 60 * 60 * 1000
-          ),
-        }
-      );
+      const newRequest = {
+        id: Date.now().toString(),
+        title: brief.title,
+        description: brief.description,
+        requiredSkills: brief.requiredSkills,
+        budget: brief.estimatedBudget,
+        currency: 'EUR',
+        location: brief.location || '',
+        dueDate: new Date(
+          Date.now() + parseInt(brief.estimatedDuration) * 24 * 60 * 60 * 1000
+        ).toISOString(),
+        createdAt: new Date().toISOString(),
+        customer: {
+          id: user?.id || 'unknown',
+          email: user?.email || 'unknown@example.com',
+          profile: {
+            firstName: user?.firstName || 'User',
+            lastName: user?.lastName || '',
+          }
+        },
+        bookings: [],
+        statusForProvider: 'NOUVEAU'
+      };
 
-      if (response.status === 201) {
-        // Reset et fermer
-        setStep('input');
-        setUserDescription('');
-        setBrief(null);
-        setFeedback('');
-        onSuccess();
-        onClose();
-      } else {
-        setError('Erreur lors de la publication');
+      // Sauvegarder dans localStorage
+      const existingRequests = JSON.parse(localStorage.getItem('userServiceRequests') || '[]');
+      existingRequests.push(newRequest);
+      localStorage.setItem('userServiceRequests', JSON.stringify(existingRequests));
+
+      // Essayer aussi l'API si disponible
+      try {
+        await apiClient.post(
+          API_ENDPOINTS.CREATE_SERVICE_REQUEST,
+          {
+            title: brief.title,
+            description: brief.description,
+            requiredSkills: brief.requiredSkills,
+            budget: brief.estimatedBudget,
+            currency: 'EUR',
+            location: brief.location || '',
+            dueDate: newRequest.dueDate,
+          }
+        );
+      } catch (apiErr) {
+        console.log('API not available, using localStorage only');
       }
+
+      // Reset et fermer
+      setStep('input');
+      setUserDescription('');
+      setBrief(null);
+      setFeedback('');
+      onSuccess();
+      onClose();
     } catch (err: any) {
       setError(
-        err.response?.data?.error ||
-          err.message ||
+        err.message ||
           'Erreur lors de la publication'
       );
     } finally {

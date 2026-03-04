@@ -427,6 +427,45 @@ export default function DashboardHome() {
       .sort(() => Math.random() - 0.5)
       .slice(0, 8);
     setShuffledFreelancers(shuffled);
+
+    // Vérifier s'il y a un prestataire en attente de contact
+    const pendingProvider = localStorage.getItem('pendingProviderContact');
+    if (pendingProvider) {
+      try {
+        const provider = JSON.parse(pendingProvider);
+        // Chercher le prestataire dans les futures données ou utiliser les données mockées
+        // Pour l'instant, créer une entrée avec les données sauvegardées
+        const providerData = {
+          id: provider.id,
+          name: provider.name,
+          category: provider.category,
+          price: provider.price,
+          rating: provider.rating,
+          reviews: provider.reviewCount,
+          tags: [],
+          isTop: false,
+          emoji: '⭐',
+          experience: '5 ans d\'expérience',
+          about: provider.description,
+          commitments: ['Créatif', 'Efficace', 'Fiable'],
+          equipment: ['Tondeuse', 'Taille-haie', 'Binette'],
+          zone: '30 km autour de Paris',
+          city: 'Paris', // Utiliser une ville valide
+          verified: true,
+          verified_phone: true,
+          evaluations: provider.reviewCount,
+          note: provider.rating,
+          workPhotos: [],
+          clientReviews: []
+        };
+        setSelectedProvider(providerData);
+        setIsProfileModalOpen(true);
+        // Nettoyer après l'utilisation
+        localStorage.removeItem('pendingProviderContact');
+      } catch (error) {
+        console.error('Erreur lors du chargement du prestataire en attente:', error);
+      }
+    }
   }, []);
 
   // Mettre à jour les stats cards quand les compteurs changent
@@ -437,6 +476,20 @@ export default function DashboardHome() {
   const handleViewProfile = (provider: typeof MOCK_FREELANCERS[0]) => {
     setSelectedProvider(provider);
     setIsProfileModalOpen(true);
+  };
+
+  const handleChatWithProvider = (providerId: number, providerName: string) => {
+    // Sauvegarder les infos de la conversation
+    const conversationData = {
+      providerId,
+      providerName,
+      timestamp: new Date().toISOString()
+    };
+    localStorage.setItem('activeConversation', JSON.stringify(conversationData));
+    
+    // Fermer le modal et rediriger
+    setIsProfileModalOpen(false);
+    router.push('/dashboard/messages');
   };
 
   const handleViewAllProviders = () => {
@@ -642,6 +695,7 @@ export default function DashboardHome() {
         provider={selectedProvider}
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
+        onChat={handleChatWithProvider}
       />
 
       {/* Service Requests Modal */}
@@ -654,7 +708,10 @@ export default function DashboardHome() {
       <CreateServiceRequestModal 
         isOpen={isCreateRequestModalOpen}
         onClose={() => setIsCreateRequestModalOpen(false)}
-        onSuccess={() => setIsServiceRequestsModalOpen(true)}
+        onSuccess={() => {
+          // Juste fermer le modal, ne pas ouvrir le list modal
+          setIsCreateRequestModalOpen(false);
+        }}
       />
     </div>
   );

@@ -22,9 +22,11 @@ export function useAuth() {
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    store.initialize();
-    setIsInitialized(true);
-  }, []);
+    if (!isInitialized) {
+      store.initialize();
+      setIsInitialized(true);
+    }
+  }, [isInitialized, store]);
 
   const login = async (payload: LoginPayload) => {
     try {
