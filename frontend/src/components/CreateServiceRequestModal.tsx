@@ -186,13 +186,13 @@ export const CreateServiceRequestModal = ({
       />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="bg-gradient-to-b from-slate-950 to-slate-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-cyan-900/30">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-2 xs2:p-3 sm:p-4">
+        <div className="bg-gradient-to-b from-slate-950 to-slate-900 rounded-lg xs2:rounded-xl sm:rounded-2xl shadow-2xl max-w-2xl w-full max-h-[95vh] xs:max-h-[90vh] overflow-hidden flex flex-col border border-cyan-900/30">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-cyan-900/20 bg-slate-900/50">
-            <div className="flex items-center gap-3">
-              <Sparkles className="w-5 h-5 text-cyan-400" />
-              <h2 className="text-xl font-bold text-white">
+          <div className="flex items-center justify-between p-2 xs2:p-3 sm:p-4 md:p-6 border-b border-cyan-900/20 bg-slate-900/50">
+            <div className="flex items-center gap-1.5 xs2:gap-2 sm:gap-3">
+              <Sparkles className="w-4 sm:w-5 h-4 sm:h-5 text-cyan-400" />
+              <h2 className="text-sm xs2:text-base sm:text-lg md:text-xl font-bold text-white">
                 Créer une demande
               </h2>
             </div>
@@ -200,33 +200,33 @@ export const CreateServiceRequestModal = ({
               onClick={onClose}
               className="p-1 hover:bg-slate-800 rounded-lg transition"
             >
-              <X className="w-5 h-5 text-gray-400" />
+              <X className="w-4 sm:w-5 h-4 sm:h-5 text-gray-400" />
             </button>
           </div>
 
           {/* Content */}
           <div
             ref={scrollRef}
-            className="flex-1 overflow-y-auto p-6 space-y-4"
+            className="flex-1 overflow-y-auto p-2 xs2:p-3 sm:p-4 md:p-6 space-y-2 xs2:space-y-3 sm:space-y-4"
           >
             {/* Step 1: User Input */}
             {step === 'input' && (
-              <div className="space-y-4">
+              <div className="space-y-2 xs2:space-y-3 sm:space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-cyan-400 mb-3">
+                  <label className="block text-xs sm:text-sm font-medium text-cyan-400 mb-1.5 xs2:mb-2 sm:mb-3">
                     Décrivez votre besoin
                   </label>
                   <textarea
                     value={userDescription}
                     onChange={(e) => setUserDescription(e.target.value)}
-                    placeholder="Ex: Je cherche un designer pour créer une landing page SaaS avec design moderne, section pricing, FAQ, et intégration newsletter..."
-                    className="w-full px-4 py-3 bg-slate-800 border border-cyan-900/40 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 resize-none"
-                    rows={6}
+                    placeholder="Ex: Je cherche un designer pour créer une landing page SaaS..."
+                    className="w-full px-2.5 xs2:px-3 sm:px-4 py-2 xs2:py-2.5 sm:py-3 bg-slate-800 border border-cyan-900/40 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 resize-none text-xs sm:text-sm"
+                    rows={4}
                   />
                 </div>
 
                 {error && (
-                  <div className="bg-red-900/30 border border-red-700/50 rounded-lg p-3 text-red-300 text-sm">
+                  <div className="bg-red-900/30 border border-red-700/50 rounded-lg p-2 xs2:p-2.5 sm:p-3 text-red-300 text-xs sm:text-sm">
                     ⚠️ {error}
                   </div>
                 )}
@@ -234,16 +234,16 @@ export const CreateServiceRequestModal = ({
                 <button
                   onClick={handleGenerateBrief}
                   disabled={loading || !userDescription.trim()}
-                  className="w-full py-3 px-4 bg-gradient-to-r from-cyan-600 to-cyan-500 text-white font-semibold rounded-lg hover:from-cyan-500 hover:to-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+                  className="w-full py-2 xs2:py-2.5 sm:py-3 px-3 sm:px-4 bg-gradient-to-r from-cyan-600 to-cyan-500 text-white font-semibold rounded-lg hover:from-cyan-500 hover:to-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2 text-xs sm:text-sm"
                 >
                   {loading ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       Génération en cours...
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-4 h-4" />
+                      <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
                       Générer un brief avec l'IA
                     </>
                   )}
@@ -253,51 +253,51 @@ export const CreateServiceRequestModal = ({
 
             {/* Step 2: Brief Review & Refinement */}
             {step === 'brief' && brief && (
-              <div className="space-y-4">
+              <div className="space-y-3 xs2:space-y-3.5 sm:space-y-4">
                 {/* Brief Preview Card */}
-                <div className="bg-slate-800/50 border border-cyan-900/30 rounded-lg p-4 space-y-3">
+                <div className="bg-slate-800/50 border border-cyan-900/30 rounded-lg p-2.5 xs2:p-3 sm:p-4 space-y-2 xs2:space-y-2.5 sm:space-y-3">
                   <div>
-                    <label className="text-xs text-gray-400 uppercase tracking-wide">
+                    <label className="text-xs xs2:text-xs2 text-gray-400 uppercase tracking-wide">
                       Titre
                     </label>
-                    <p className="text-white font-semibold">{brief.title}</p>
+                    <p className="text-white font-semibold text-sm xs2:text-base">{brief.title}</p>
                   </div>
 
                   <div>
-                    <label className="text-xs text-gray-400 uppercase tracking-wide">
+                    <label className="text-xs xs2:text-xs2 text-gray-400 uppercase tracking-wide">
                       Description
                     </label>
-                    <p className="text-gray-300 text-sm">{brief.description}</p>
+                    <p className="text-gray-300 text-xs xs2:text-sm">{brief.description}</p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-2 xs2:gap-2.5 sm:gap-3">
                     <div>
-                      <label className="text-xs text-gray-400 uppercase tracking-wide">
+                      <label className="text-xs xs2:text-xs2 text-gray-400 uppercase tracking-wide">
                         Budget estimé
                       </label>
-                      <p className="text-white font-semibold">
+                      <p className="text-white font-semibold text-sm xs2:text-base">
                         €{brief.estimatedBudget}
                       </p>
                     </div>
                     <div>
-                      <label className="text-xs text-gray-400 uppercase tracking-wide">
+                      <label className="text-xs xs2:text-xs2 text-gray-400 uppercase tracking-wide">
                         Durée
                       </label>
-                      <p className="text-white font-semibold">
+                      <p className="text-white font-semibold text-sm xs2:text-base">
                         {brief.estimatedDuration}
                       </p>
                     </div>
                   </div>
 
                   <div>
-                    <label className="text-xs text-gray-400 uppercase tracking-wide">
+                    <label className="text-xs xs2:text-xs2 text-gray-400 uppercase tracking-wide">
                       Compétences requises
                     </label>
-                    <div className="flex flex-wrap gap-2 mt-2">
+                    <div className="flex flex-wrap gap-1.5 xs2:gap-2 mt-1.5 xs2:mt-2">
                       {brief.requiredSkills.split(',').map((skill) => (
                         <span
                           key={skill.trim()}
-                          className="px-2 py-1 bg-cyan-900/30 border border-cyan-700/50 rounded text-cyber-300 text-xs"
+                          className="px-2 py-0.5 xs2:py-1 bg-cyan-900/30 border border-cyan-700/50 rounded text-cyan-300 text-xs"
                         >
                           {skill.trim()}
                         </span>
@@ -307,54 +307,53 @@ export const CreateServiceRequestModal = ({
 
                   {brief.location && (
                     <div>
-                      <label className="text-xs text-gray-400 uppercase tracking-wide">
+                      <label className="text-xs xs2:text-xs2 text-gray-400 uppercase tracking-wide">
                         Localisation
                       </label>
-                      <p className="text-white">{brief.location}</p>
+                      <p className="text-white text-xs xs2:text-sm">{brief.location}</p>
                     </div>
                   )}
                 </div>
 
                 {error && (
-                  <div className="bg-red-900/30 border border-red-700/50 rounded-lg p-3 text-red-300 text-sm">
+                  <div className="bg-red-900/30 border border-red-700/50 rounded-lg p-2 xs2:p-2.5 sm:p-3 text-red-300 text-xs sm:text-sm">
                     ⚠️ {error}
                   </div>
                 )}
 
                 {/* Feedback Input */}
                 <div>
-                  <label className="block text-sm font-medium text-cyan-400 mb-2">
+                  <label className="block text-xs sm:text-sm font-medium text-cyan-400 mb-1.5 xs2:mb-2">
                     Qu'allez-vous changer ? (optionnel)
                   </label>
                   <textarea
                     value={feedback}
                     onChange={(e) => setFeedback(e.target.value)}
-                    placeholder="Ex: Augmenter le budget à 7000€, ajouter React comme skill, ...
-"
-                    className="w-full px-4 py-3 bg-slate-800 border border-cyan-900/40 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 resize-none"
+                    placeholder="Ex: Augmenter le budget à 7000€, ajouter React comme skill..."
+                    className="w-full px-2.5 xs2:px-3 sm:px-4 py-2 xs2:py-2.5 sm:py-3 bg-slate-800 border border-cyan-900/40 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 resize-none text-xs sm:text-sm"
                     rows={3}
                   />
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex gap-3">
+                <div className="flex gap-2 xs2:gap-2.5 sm:gap-3">
                   <button
                     onClick={() => setFeedback('')}
-                    className="flex-1 py-2 px-4 border border-gray-600 text-gray-300 rounded-lg hover:bg-slate-800 transition text-sm"
+                    className="flex-1 py-1.5 xs2:py-2 sm:py-2.5 px-3 border border-gray-600 text-gray-300 rounded-lg hover:bg-slate-800 transition text-xs sm:text-sm"
                   >
-                    Annuler les modifications
+                    Annuler
                   </button>
 
                   {feedback.trim() ? (
                     <button
                       onClick={handleRefineBrief}
                       disabled={loading}
-                      className="flex-1 py-2 px-4 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white rounded-lg transition text-sm font-medium flex items-center justify-center gap-2"
+                      className="flex-1 py-1.5 xs2:py-2 sm:py-2.5 px-3 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white rounded-lg transition text-xs sm:text-sm font-medium flex items-center justify-center gap-1.5"
                     >
                       {loading ? (
                         <>
                           <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          Raffinement...
+                          Raffinage...
                         </>
                       ) : (
                         <>
@@ -367,7 +366,7 @@ export const CreateServiceRequestModal = ({
                     <button
                       onClick={handlePublish}
                       disabled={loading}
-                      className="flex-1 py-2 px-4 bg-gradient-to-r from-cyan-600 to-cyan-500 text-white rounded-lg hover:from-cyan-500 hover:to-cyan-400 disabled:opacity-50 transition text-sm font-medium"
+                      className="flex-1 py-1.5 xs2:py-2 sm:py-2.5 px-3 bg-gradient-to-r from-cyan-600 to-cyan-500 text-white rounded-lg hover:from-cyan-500 hover:to-cyan-400 disabled:opacity-50 transition text-xs sm:text-sm font-medium"
                     >
                       {loading ? 'Publication...' : '✓ Publier'}
                     </button>
@@ -381,7 +380,7 @@ export const CreateServiceRequestModal = ({
                     setBrief(null);
                     setFeedback('');
                   }}
-                  className="w-full py-2 text-gray-400 hover:text-gray-300 text-sm"
+                  className="w-full py-1.5 xs2:py-2 sm:py-2.5 text-gray-400 hover:text-gray-300 text-xs sm:text-sm"
                 >
                   ← Recommencer
                 </button>

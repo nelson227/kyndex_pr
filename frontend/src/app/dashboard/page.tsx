@@ -498,45 +498,45 @@ export default function DashboardHome() {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-8">
+    <div className="space-y-3 xs2:space-y-4 sm:space-y-6 md:space-y-8">
       {/* Header - Bienvenue */}
-      <div className="px-4 sm:px-0">
-        <p className="text-gray-400 text-xs sm:text-sm mb-1">Bienvenue</p>
-        <h1 className="text-2xl sm:text-4xl font-bold text-white">Acceuil</h1>
-        <p className="text-gray-400 text-sm sm:text-base mt-2">Suivez l'activité, vos missions et vos échanges en un coup d'oeil.</p>
+      <div className="px-2 xs2:px-3 sm:px-4 md:px-0">
+        <p className="text-gray-400 text-xs md:text-sm mb-0.5 xs2:mb-1">Bienvenue</p>
+        <h1 className="text-lg xs2:text-xl sm:text-2xl md:text-4xl font-bold text-white">Acceuil</h1>
+        <p className="text-gray-400 text-xs xs2:text-xs2 sm:text-sm md:text-base mt-1 xs2:mt-1.5 sm:mt-2">Suivez l'activité, vos missions et vos échanges en un coup d'oeil.</p>
       </div>
 
       {/* Stats Cards */}
-      <div className="px-4 sm:px-0">
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+      <div className="px-2 xs2:px-3 sm:px-4 md:px-0">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-1.5 xs2:gap-2 sm:gap-3 md:gap-4">
           {statsCards.map((card) => (
             <div
               key={card.id}
-              className="bg-gray-900/50 border border-gray-800 rounded-lg sm:rounded-xl p-3 sm:p-6 hover:border-cyan-500/30 transition cursor-pointer group"
+              className="bg-gray-900/50 border border-gray-800 rounded-lg p-2 xs2:p-2.5 sm:p-4 md:p-6 hover:border-cyan-500/30 transition cursor-pointer group"
             >
-              <div className="flex flex-col items-start justify-between mb-2 sm:mb-4">
+              <div className="flex flex-col items-start justify-between gap-1.5 xs2:gap-2 sm:gap-3 md:gap-4">
                 <div className="w-full">
-                  <p className="text-gray-400 text-xs sm:text-sm font-medium truncate">{card.title}</p>
+                  <p className="text-gray-400 text-xs xs2:text-xs2 sm:text-sm md:text-base font-medium truncate">{card.title}</p>
                   {card.count > 0 && (
-                    <h3 className="text-2xl sm:text-4xl font-bold text-white mt-1 sm:mt-2">{card.count}</h3>
+                    <h3 className="text-lg xs2:text-xl sm:text-2xl md:text-4xl font-bold text-white mt-1 xs2:mt-1.5 sm:mt-2">{card.count}</h3>
                   )}
                 </div>
-                <span className={`text-xs font-bold px-2 py-1 rounded-full mt-1 ${
+                <span className={`text-xs font-bold px-2 xs2:px-2.5 py-0.5 xs2:py-1 rounded-full ${
                   card.badgeColor === 'red' ? 'bg-red-500/20 text-red-400' :
                   'bg-cyan-500/20 text-cyan-400'
                 }`}>
                   {card.badge}
                 </span>
               </div>
-              <p className="text-gray-400 text-xs">{card.description}</p>
+              <p className="text-gray-400 text-xs xs2:text-xs2">{card.description}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* Recommandations - Prestataires qui défilent */}
-      <div className="px-4 sm:px-0">
-        <h2 className="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-4">Recommandations</h2>
+      <div className="px-2 xs2:px-3 sm:px-4 md:px-0">
+        <h2 className="text-sm xs2:text-base sm:text-lg md:text-xl font-bold text-white mb-2 xs2:mb-2.5 sm:mb-4">Recommandations</h2>
         
         {/* Conteneur avec animation de scroll continu */}
         <style>{`
@@ -560,43 +560,43 @@ export default function DashboardHome() {
         
         <div className="overflow-hidden relative">
           <div
-            className="flex gap-2 sm:gap-4 carousel-scroll"
+            className="flex gap-1.5 xs2:gap-2 sm:gap-3 md:gap-4 carousel-scroll"
             style={{ width: 'fit-content' }}
           >
             {/* Afficher les profils 2 fois pour l'effet de boucle infinie */}
             {[...shuffledFreelancers, ...shuffledFreelancers].map((freelancer, idx) => (
               <div
                 key={`${freelancer.id}-${idx}`}
-                className="flex-shrink-0 w-60 sm:w-80 bg-gray-900 border border-gray-800 rounded-lg sm:rounded-xl overflow-hidden hover:border-cyan-500/50 transition cursor-pointer group"
+                className="flex-shrink-0 w-36 xs2:w-44 sm:w-56 md:w-80 bg-gray-900 border border-gray-800 rounded-lg sm:rounded-xl overflow-hidden hover:border-cyan-500/50 transition cursor-pointer group"
               >
                 {/* Avatar Area */}
-                <div className="h-32 sm:h-40 bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center text-4xl sm:text-6xl relative">
+                <div className="h-20 xs2:h-24 sm:h-28 md:h-40 bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center text-xl xs2:text-2xl sm:text-4xl md:text-6xl relative">
                   {freelancer.emoji}
                   {freelancer.isTop && (
-                    <div className="absolute top-2 sm:top-3 right-2 sm:right-3 bg-yellow-500 text-black px-2 py-1 rounded text-xs font-bold">
+                    <div className="absolute top-1 xs2:top-1.5 sm:top-2 md:top-3 right-1 xs2:right-1.5 sm:right-2 md:right-3 bg-yellow-500 text-black px-1 xs2:px-1.5 sm:px-2 py-0.5 rounded text-xs font-bold">
                       🏆 Top
                     </div>
                   )}
                 </div>
 
                 {/* Content */}
-                <div className="p-2 sm:p-4">
-                  <h3 className="text-white font-bold text-lg">{freelancer.name}</h3>
-                  <p className="text-gray-400 text-sm">{freelancer.category}</p>
-                  <p className="text-cyan-400 font-semibold mt-2">{freelancer.price} $/h</p>
+                <div className="p-2 xs2:p-2.5 sm:p-3 md:p-4">
+                  <h3 className="text-white font-bold text-xs xs2:text-sm sm:text-base md:text-lg">{freelancer.name}</h3>
+                  <p className="text-gray-400 text-xs xs2:text-xs2 sm:text-sm">{freelancer.category}</p>
+                  <p className="text-cyan-400 font-semibold mt-1 xs2:mt-1.5 sm:mt-2 text-xs xs2:text-xs2 sm:text-sm">{freelancer.price} $/h</p>
                   
                   {/* Rating */}
-                  <div className="flex items-center gap-2 mt-2 mb-3">
+                  <div className="flex items-center gap-1.5 sm:gap-2 mt-1 xs2:mt-1.5 sm:mt-2 mb-1.5 sm:mb-2 text-xs xs2:text-xs2 sm:text-sm">
                     <span className="text-yellow-400">⭐{freelancer.rating.toFixed(2)}</span>
-                    <span className="text-gray-500 text-sm">({freelancer.reviews} avis)</span>
+                    <span className="text-gray-500 text-xs">({freelancer.reviews})</span>
                   </div>
 
                   {/* Tags */}
-                  <div className="flex flex-wrap gap-2 mb-4">
+                  <div className="flex flex-wrap gap-0.5 xs2:gap-1 mb-2">
                     {freelancer.tags.map((tag, idx) => (
                       <span
                         key={idx}
-                        className="text-xs bg-gray-800 text-gray-300 px-2 py-1 rounded-full"
+                        className="text-xs bg-gray-800 text-gray-300 px-1.5 py-0.5 rounded-full"
                       >
                         • {tag}
                       </span>
@@ -606,7 +606,7 @@ export default function DashboardHome() {
                   {/* Button */}
                   <button 
                     onClick={() => handleViewProfile(freelancer)}
-                    className="w-full py-2 bg-transparent border border-cyan-500 text-cyan-400 hover:bg-cyan-500/10 rounded-lg font-semibold transition text-sm"
+                    className="w-full py-1 xs2:py-1.5 sm:py-2 bg-transparent border border-cyan-500 text-cyan-400 hover:bg-cyan-500/10 rounded-lg font-semibold transition text-xs sm:text-sm"
                   >
                     Voir le profil
                   </button>
@@ -618,51 +618,59 @@ export default function DashboardHome() {
       </div>
 
       {/* Voir tous les prestataires */}
-      <div className="text-center">
+      <div className="text-center px-2 xs2:px-3 sm:px-4 md:px-0">
         <button
           onClick={handleViewAllProviders}
-          className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 text-black font-bold rounded-lg hover:shadow-lg hover:shadow-cyan-500/50 transition"
+          className="px-3 xs2:px-4 sm:px-6 md:px-8 py-2 xs2:py-2.5 sm:py-2.5 md:py-3 bg-gradient-to-r from-cyan-500 to-purple-600 text-black font-bold rounded-lg hover:shadow-lg hover:shadow-cyan-500/50 transition text-xs sm:text-sm md:text-base"
         >
           Voir tous les prestataires
         </button>
       </div>
 
       {/* Quick Access Buttons */}
-      <div className="flex gap-3 justify-center flex-wrap">
-        <button 
-          onClick={() => setIsCreateRequestModalOpen(true)}
-          className="px-6 py-2 bg-gradient-to-r from-cyan-600 to-cyan-500 text-white rounded-lg hover:from-cyan-500 hover:to-cyan-400 transition text-sm font-semibold flex items-center gap-2"
-        >
-          📝 Créer une demande
-        </button>
-        <button 
-          onClick={() => setIsServiceRequestsModalOpen(true)}
-          className="px-3 sm:px-6 py-2 border border-cyan-500 text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition text-xs sm:text-sm font-semibold"
-        >
-          Voir demandes
-        </button>
-        <button className="px-3 sm:px-6 py-2 border border-cyan-500 text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition text-xs sm:text-sm font-semibold">
-          Voir missions
-        </button>
-        <button className="px-3 sm:px-6 py-2 border border-cyan-500 text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition text-xs sm:text-sm font-semibold">
-          Voir messagerie
-        </button>
-        <button className="px-3 sm:px-6 py-2 border border-cyan-500 text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition text-xs sm:text-sm font-semibold">
-          Voir calendrier
-        </button>
+      <div className="px-2 xs2:px-3 sm:px-4 md:px-0">
+        <div className="flex gap-1 xs2:gap-1.5 sm:gap-2 justify-center flex-wrap">
+          <button 
+            onClick={() => setIsCreateRequestModalOpen(true)}
+            className="px-2 xs2:px-3 sm:px-4 md:px-6 py-1.5 xs2:py-1.75 sm:py-2 md:py-2.5 bg-gradient-to-r from-cyan-600 to-cyan-500 text-white rounded-lg hover:from-cyan-500 hover:to-cyan-400 transition text-xs sm:text-sm md:text-base font-semibold flex items-center gap-1 xs2:gap-1.5 whitespace-nowrap"
+          >
+            <span className="hidden xs:inline">📝</span> 
+            <span className="hidden sm:inline">Créer une demande</span>
+            <span className="inline sm:hidden">Créer</span>
+          </button>
+          <button 
+            onClick={() => setIsServiceRequestsModalOpen(true)}
+            className="px-2 xs2:px-3 sm:px-4 md:px-6 py-1.5 xs2:py-1.75 sm:py-2 md:py-2.5 border border-cyan-500 text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition text-xs sm:text-sm md:text-base font-semibold whitespace-nowrap"
+          >
+            <span className="hidden sm:inline">Voir demandes</span>
+            <span className="inline sm:hidden">Demandes</span>
+          </button>
+          <button className="px-2 xs2:px-3 sm:px-4 md:px-6 py-1.5 xs2:py-1.75 sm:py-2 md:py-2.5 border border-cyan-500 text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition text-xs sm:text-sm md:text-base font-semibold whitespace-nowrap">
+            <span className="hidden sm:inline">Voir missions</span>
+            <span className="inline sm:hidden">Missions</span>
+          </button>
+          <button className="px-2 xs2:px-3 sm:px-4 md:px-6 py-1.5 xs2:py-1.75 sm:py-2 md:py-2.5 border border-cyan-500 text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition text-xs sm:text-sm md:text-base font-semibold whitespace-nowrap">
+            <span className="hidden sm:inline">Voir messagerie</span>
+            <span className="inline sm:hidden">Messages</span>
+          </button>
+          <button className="px-2 xs2:px-3 sm:px-4 md:px-6 py-1.5 xs2:py-1.75 sm:py-2 md:py-2.5 border border-cyan-500 text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition text-xs sm:text-sm md:text-base font-semibold whitespace-nowrap">
+            <span className="hidden sm:inline">Voir calendrier</span>
+            <span className="inline sm:hidden">Calendrier</span>
+          </button>
+        </div>
       </div>
 
       {/* Aperçu rapide */}
-      <div className="px-4 sm:px-0">
-        <h2 className="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-4">Aperçu rapide</h2>
+      <div className="px-2 xs2:px-3 sm:px-4 md:px-0">
+        <h2 className="text-sm xs2:text-base sm:text-lg md:text-xl font-bold text-white mb-2 xs2:mb-2.5 sm:mb-4">Aperçu rapide</h2>
         <div className="border border-gray-800 rounded-lg sm:rounded-xl overflow-x-auto">
-          <table className="w-full min-w-max sm:min-w-full">
+          <table className="w-full min-w-max sm:min-w-full text-xs sm:text-sm">
             <thead>
               <tr className="border-b border-gray-800 bg-gray-900/50">
-                <th className="text-left px-2 sm:px-6 py-2 sm:py-3 text-gray-400 font-semibold text-xs sm:text-sm">Type</th>
-                <th className="text-left px-2 sm:px-6 py-2 sm:py-3 text-gray-400 font-semibold text-xs sm:text-sm">Titre</th>
-                <th className="text-left px-2 sm:px-6 py-2 sm:py-3 text-gray-400 font-semibold text-xs sm:text-sm">Statut</th>
-                <th className="text-left px-2 sm:px-6 py-2 sm:py-3 text-gray-400 font-semibold text-xs sm:text-sm hidden sm:table-cell">Mis à jour</th>
+                <th className="text-left px-2 xs2:px-3 sm:px-4 md:px-6 py-2 xs2:py-2.5 sm:py-3 text-gray-400 font-semibold text-xs sm:text-sm">Type</th>
+                <th className="text-left px-2 xs2:px-3 sm:px-4 md:px-6 py-2 xs2:py-2.5 sm:py-3 text-gray-400 font-semibold text-xs sm:text-sm">Titre</th>
+                <th className="text-left px-2 xs2:px-3 sm:px-4 md:px-6 py-2 xs2:py-2.5 sm:py-3 text-gray-400 font-semibold text-xs sm:text-sm">Statut</th>
+                <th className="text-left px-2 xs2:px-3 sm:px-4 md:px-6 py-2 xs2:py-2.5 sm:py-3 text-gray-400 font-semibold text-xs sm:text-sm hidden sm:table-cell">Mis à jour</th>
               </tr>
             </thead>
             <tbody>
@@ -671,10 +679,10 @@ export default function DashboardHome() {
                   key={idx}
                   className="border-b border-gray-800 hover:bg-gray-900/50 transition cursor-pointer"
                 >
-                  <td className="px-2 sm:px-6 py-2 sm:py-4 text-white font-semibold text-xs sm:text-sm">{item.type}</td>
-                  <td className="px-2 sm:px-6 py-2 sm:py-4 text-gray-300 text-xs sm:text-sm">{item.title}</td>
-                  <td className="px-2 sm:px-6 py-2 sm:py-4">
-                    <span className={`text-xs font-bold px-2 sm:px-3 py-1 rounded-full inline-block ${
+                  <td className="px-2 xs2:px-3 sm:px-4 md:px-6 py-2 xs2:py-2.5 sm:py-3 text-white font-semibold text-xs sm:text-sm">{item.type}</td>
+                  <td className="px-2 xs2:px-3 sm:px-4 md:px-6 py-2 xs2:py-2.5 sm:py-3 text-gray-300 text-xs sm:text-sm line-clamp-1 sm:line-clamp-2">{item.title}</td>
+                  <td className="px-2 xs2:px-3 sm:px-4 md:px-6 py-2 xs2:py-2.5 sm:py-3">
+                    <span className={`text-xs font-bold px-1.5 xs2:px-2 sm:px-3 py-0.5 sm:py-1 rounded-full inline-block ${
                       item.statusColor === 'red' ? 'bg-red-500/20 text-red-400' :
                       item.statusColor === 'cyan' ? 'bg-cyan-500/20 text-cyan-400' :
                       'bg-green-500/20 text-green-400'
@@ -682,7 +690,7 @@ export default function DashboardHome() {
                       🔴 {item.status}
                     </span>
                   </td>
-                  <td className="px-2 sm:px-6 py-2 sm:py-4 text-gray-500 text-xs sm:text-sm hidden sm:table-cell">{item.date}</td>
+                  <td className="px-2 xs2:px-3 sm:px-4 md:px-6 py-2 xs2:py-2.5 sm:py-3 text-gray-500 text-xs sm:text-sm hidden sm:table-cell">{item.date}</td>
                 </tr>
               ))}
             </tbody>

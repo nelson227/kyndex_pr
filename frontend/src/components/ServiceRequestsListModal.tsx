@@ -153,16 +153,16 @@ const ServiceRequestsListModal: React.FC<ServiceRequestsListModalProps> = ({ isO
       <div className="fixed inset-0 bg-black/50 z-40" onClick={onClose} />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="bg-slate-900 rounded-lg max-w-2xl w-full max-h-[80vh] flex flex-col border border-cyan-500/30">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-2 xs2:p-3 sm:p-4">
+        <div className="bg-slate-900 rounded-lg xs2:rounded-xl sm:rounded-lg max-w-2xl w-full max-h-[95vh] xs:max-h-[90vh] sm:max-h-[85vh] md:max-h-[80vh] flex flex-col border border-cyan-500/30">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-cyan-500/20">
-            <h2 className="text-xl font-bold text-white">Demandes de service</h2>
+          <div className="flex items-center justify-between p-2 xs2:p-3 sm:p-4 md:p-6 border-b border-cyan-500/20">
+            <h2 className="text-sm xs2:text-base sm:text-lg md:text-xl font-bold text-white">Demandes de service</h2>
             <button
               onClick={onClose}
-              className="p-1 hover:bg-slate-800 rounded-full transition-colors"
+              className="p-1 hover:bg-slate-800 rounded-full transition-colors flex-shrink-0"
             >
-              <X size={24} className="text-gray-400" />
+              <X size={18} className="xs2:w-5 xs2:h-5 sm:w-6 sm:h-6 text-gray-400" />
             </button>
           </div>
 
@@ -170,37 +170,37 @@ const ServiceRequestsListModal: React.FC<ServiceRequestsListModalProps> = ({ isO
           <div className="flex-1 overflow-y-auto">
             {loading ? (
               <div className="flex items-center justify-center h-full">
-                <div className="text-gray-400">Chargement des demandes...</div>
+                <div className="text-gray-400 text-xs sm:text-sm">Chargement des demandes...</div>
               </div>
             ) : error ? (
-              <div className="flex items-center justify-center h-full p-6">
-                <div className="text-center text-gray-400 bg-red-500/10 border border-red-500/30 rounded p-4">
-                  <p className="text-red-400 font-semibold">Erreur: {error}</p>
-                  <p className="text-xs mt-2">Vérifiez la console pour plus de détails</p>
+              <div className="flex items-center justify-center h-full p-3 xs2:p-4 sm:p-6">
+                <div className="text-center text-gray-400 bg-red-500/10 border border-red-500/30 rounded p-3">
+                  <p className="text-red-400 font-semibold text-xs sm:text-sm">Erreur: {error}</p>
+                  <p className="text-xs mt-1 xs2:mt-2">Vérifiez la console pour plus de détails</p>
                 </div>
               </div>
             ) : requests.length === 0 ? (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center text-gray-400">
-                  <p>Aucune demande de service disponible</p>
+                  <p className="text-xs sm:text-base">Aucune demande de service disponible</p>
                 </div>
               </div>
             ) : (
-              <div className="space-y-3 p-6">
+              <div className="space-y-2 xs2:space-y-2.5 sm:space-y-3 p-2 xs2:p-3 sm:p-4 md:p-6">
                 {requests.map((request) => (
                   <button
                     key={request.id}
                     onClick={() => handleRequestClick(request)}
-                    className="w-full text-left p-4 bg-slate-800/50 hover:bg-slate-800 rounded-lg border border-slate-700 hover:border-cyan-500/50 transition-all group"
+                    className="w-full text-left p-2 xs2:p-2.5 sm:p-3 md:p-4 bg-slate-800/50 hover:bg-slate-800 rounded-lg border border-slate-700 hover:border-cyan-500/50 transition-all group text-xs sm:text-sm"
                   >
-                    <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start justify-between gap-2 sm:gap-4">
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="font-semibold text-white truncate group-hover:text-cyan-400 transition-colors">
+                        <div className="flex items-center gap-1.5 xs2:gap-2 sm:gap-3 mb-1 xs2:mb-1.5 sm:mb-2">
+                          <h3 className="font-semibold text-white truncate group-hover:text-cyan-400 transition-colors text-xs sm:text-base">
                             {request.title}
                           </h3>
                           <span
-                            className={`px-2 py-1 rounded text-xs font-medium whitespace-nowrap ${getStatusColor(
+                            className={`px-1.5 xs2:px-2 py-0.5 sm:py-1 rounded text-xs font-medium whitespace-nowrap ${getStatusColor(
                               request.statusForProvider
                             )}`}
                           >
@@ -208,43 +208,43 @@ const ServiceRequestsListModal: React.FC<ServiceRequestsListModalProps> = ({ isO
                           </span>
                         </div>
 
-                        <p className="text-sm text-gray-400 line-clamp-2 mb-3">
+                        <p className="text-xs sm:text-sm text-gray-400 line-clamp-2 mb-1.5 xs2:mb-2">
                           {request.description}
                         </p>
 
-                        <div className="flex flex-wrap gap-4 text-sm">
+                        <div className="flex flex-wrap gap-1.5 xs2:gap-2 sm:gap-3 text-xs sm:text-sm">
                           {request.location && (
-                            <div className="flex items-center gap-1 text-gray-400">
-                              <MapPin size={14} />
-                              <span>{request.location}</span>
+                            <div className="flex items-center gap-0.5 xs2:gap-1 text-gray-400">
+                              <MapPin size={11} className="xs2:w-3 xs2:h-3 sm:w-4 sm:h-4" />
+                              <span className="text-xs sm:text-sm">{request.location}</span>
                             </div>
                           )}
 
                           {request.budget && (
-                            <div className="flex items-center gap-1 text-gray-400">
-                              <DollarSign size={14} />
-                              <span>
+                            <div className="flex items-center gap-0.5 xs2:gap-1 text-gray-400">
+                              <DollarSign size={11} className="xs2:w-3 xs2:h-3 sm:w-4 sm:h-4" />
+                              <span className="text-xs sm:text-sm">
                                 {request.budget} {request.currency}
                               </span>
                             </div>
                           )}
 
                           {request.dueDate && (
-                            <div className="flex items-center gap-1 text-gray-400">
-                              <Clock size={14} />
-                              <span>Avant le {formatDate(request.dueDate)}</span>
+                            <div className="flex items-center gap-0.5 xs2:gap-1 text-gray-400">
+                              <Clock size={11} className="xs2:w-3 xs2:h-3 sm:w-4 sm:h-4" />
+                              <span className="text-xs sm:text-sm">Avant le {formatDate(request.dueDate)}</span>
                             </div>
                           )}
                         </div>
 
-                        <div className="mt-2 text-xs text-gray-500">
+                        <div className="mt-1 xs2:mt-1.5 text-xs text-gray-500">
                           Demandeur: {getCustomerName(request.customer)}
                         </div>
                       </div>
 
                       <ChevronRight
-                        size={20}
-                        className="text-gray-500 group-hover:text-cyan-400 transition-colors flex-shrink-0 mt-1"
+                        size={16}
+                        className="xs2:w-5 xs2:h-5 text-gray-500 group-hover:text-cyan-400 transition-colors flex-shrink-0 mt-0.5"
                       />
                     </div>
                   </button>
