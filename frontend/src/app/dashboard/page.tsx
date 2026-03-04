@@ -655,18 +655,6 @@ export default function DashboardHome() {
             <span className="hidden sm:inline">Voir demandes</span>
             <span className="inline sm:hidden">Demandes</span>
           </button>
-          <button className="px-2 xs2:px-3 sm:px-4 md:px-6 py-1.5 xs2:py-1.75 sm:py-2 md:py-2.5 border border-cyan-500 text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition text-xs sm:text-sm md:text-base font-semibold whitespace-nowrap">
-            <span className="hidden sm:inline">Voir missions</span>
-            <span className="inline sm:hidden">Missions</span>
-          </button>
-          <button className="px-2 xs2:px-3 sm:px-4 md:px-6 py-1.5 xs2:py-1.75 sm:py-2 md:py-2.5 border border-cyan-500 text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition text-xs sm:text-sm md:text-base font-semibold whitespace-nowrap">
-            <span className="hidden sm:inline">Voir messagerie</span>
-            <span className="inline sm:hidden">Messages</span>
-          </button>
-          <button className="px-2 xs2:px-3 sm:px-4 md:px-6 py-1.5 xs2:py-1.75 sm:py-2 md:py-2.5 border border-cyan-500 text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition text-xs sm:text-sm md:text-base font-semibold whitespace-nowrap">
-            <span className="hidden sm:inline">Voir calendrier</span>
-            <span className="inline sm:hidden">Calendrier</span>
-          </button>
         </div>
       </div>
 
