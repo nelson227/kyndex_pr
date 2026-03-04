@@ -36,25 +36,25 @@ export default function AccountPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <button 
           onClick={() => setActiveModal('personal')}
-          className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left"
+          className="bg-white p-6 rounded-xl border-2 border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left w-full"
         >
-          <div className="text-2xl mb-2">👤</div>
+          <div className="text-3xl mb-3">👤</div>
           <h3 className="font-semibold text-gray-900">Informations personnelles</h3>
           <p className="text-sm text-gray-600 mt-2">Complétez et mettez à jour votre identité</p>
         </button>
         <button 
           onClick={() => setActiveModal('balance')}
-          className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left"
+          className="bg-white p-6 rounded-xl border-2 border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left w-full"
         >
-          <div className="text-2xl mb-2">💰</div>
+          <div className="text-3xl mb-3">💰</div>
           <h3 className="font-semibold text-gray-900">Mon solde</h3>
           <p className="text-sm text-gray-600 mt-2">($0.00)</p>
         </button>
         <button 
           onClick={() => setActiveModal('credit')}
-          className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left"
+          className="bg-white p-6 rounded-xl border-2 border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left w-full"
         >
-          <div className="text-2xl mb-2">💳</div>
+          <div className="text-3xl mb-3">💳</div>
           <h3 className="font-semibold text-gray-900">Mon crédit Kyndex</h3>
           <p className="text-sm text-gray-600 mt-2">0 crédits disponibles</p>
         </button>
@@ -67,7 +67,7 @@ export default function AccountPage() {
           {/* Personal Info */}
           <button 
             onClick={() => setActiveModal('personal')}
-            className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left w-full"
+            className="bg-white p-6 rounded-xl border-2 border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left w-full"
           >
             <div className="flex items-center gap-3 mb-4">
               <span className="text-2xl">👤</span>
@@ -84,7 +84,7 @@ export default function AccountPage() {
           {/* Payment Methods */}
           <button 
             onClick={() => setActiveModal('payment')}
-            className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left w-full"
+            className="bg-white p-6 rounded-xl border-2 border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left w-full"
           >
             <div className="flex items-center gap-3 mb-4">
               <span className="text-2xl">💳</span>
@@ -101,7 +101,7 @@ export default function AccountPage() {
           {/* Notifications */}
           <button 
             onClick={() => setActiveModal('notifications')}
-            className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left w-full"
+            className="bg-white p-6 rounded-xl border-2 border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left w-full"
           >
             <div className="flex items-center gap-3 mb-4">
               <span className="text-2xl">🔔</span>
@@ -121,7 +121,7 @@ export default function AccountPage() {
           {/* Balance */}
           <button 
             onClick={() => setActiveModal('balance-detail')}
-            className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left w-full"
+            className="bg-white p-6 rounded-xl border-2 border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left w-full"
           >
             <div className="flex items-center gap-3 mb-4">
               <span className="text-2xl">💰</span>
@@ -138,7 +138,7 @@ export default function AccountPage() {
           {/* Documents */}
           <button 
             onClick={() => setActiveModal('documents')}
-            className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left w-full"
+            className="bg-white p-6 rounded-xl border-2 border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left w-full"
           >
             <div className="flex items-center gap-3 mb-4">
               <span className="text-2xl">📄</span>
@@ -155,7 +155,7 @@ export default function AccountPage() {
           {/* Security */}
           <button 
             onClick={() => setActiveModal('security')}
-            className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left w-full"
+            className="bg-white p-6 rounded-xl border-2 border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left w-full"
           >
             <div className="flex items-center gap-3 mb-4">
               <span className="text-2xl">🛡️</span>
@@ -252,57 +252,65 @@ function Modal({ modalType, onClose, user }: ModalProps) {
           content: (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Prénom</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Prénom</label>
                 <input
                   type="text"
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none"
+                  placeholder="Entrez votre prénom"
+                  className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition text-gray-900 placeholder-gray-400"
+                  autoComplete="given-name"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nom</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Nom</label>
                 <input
                   type="text"
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none"
+                  placeholder="Entrez votre nom"
+                  className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition text-gray-900 placeholder-gray-400"
+                  autoComplete="family-name"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none"
+                  placeholder="Entrez votre email"
+                  className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition text-gray-900 placeholder-gray-400"
+                  autoComplete="email"
                 />
-                <p className="text-xs text-gray-500 mt-1">⚠️ Changer d'email modifiera vos identifiants de connexion</p>
+                <p className="text-xs text-orange-600 mt-2 font-medium">⚠️ L'ancien email ne pourra plus être utilisé pour vous connecter après l'enregistrement</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Téléphone</label>
                 <input
                   type="tel"
                   name="phone"
                   value={formData.phone}
+                  onChange={handleInputChange}
                   placeholder="+33 6 XX XX XX XX"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition text-gray-900 placeholder-gray-400"
+                  autoComplete="tel"
                 />
               </div>
               {message && (
-                <div className={`p-3 rounded-lg text-sm ${message.includes('✅') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                <div className={`p-4 rounded-lg text-sm font-medium ${message.includes('✅') ? 'bg-green-100 text-green-800 border border-green-300' : 'bg-red-100 text-red-800 border border-red-300'}`}>
                   {message}
                 </div>
               )}
               <button
                 onClick={handleSavePersonal}
                 disabled={isSaving}
-                className="w-full mt-4 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition disabled:opacity-50"
+                className="w-full mt-6 px-4 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg hover:from-cyan-600 hover:to-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSaving ? '⏳ Enregistrement...' : 'Enregistrer les modifications'}
+                {isSaving ? '⏳ Enregistrement en cours...' : '✓ Enregistrer les modifications'}
               </button>
             </div>
           )
@@ -452,15 +460,16 @@ function Modal({ modalType, onClose, user }: ModalProps) {
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
           <div className="flex items-center gap-3">
             <span className="text-3xl">{modal.icon}</span>
             <h2 className="text-2xl font-bold text-gray-900">{modal.title}</h2>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition"
+            className="p-2 hover:bg-gray-100 rounded-lg transition flex-shrink-0"
             title="Fermer"
+            aria-label="Fermer"
           >
             <X className="w-6 h-6" />
           </button>
@@ -473,4 +482,4 @@ function Modal({ modalType, onClose, user }: ModalProps) {
       </div>
     </div>
   );
-}}
+}
