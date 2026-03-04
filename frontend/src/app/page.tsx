@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Check, ArrowRight, Sparkles, X } from 'lucide-react';
+import { Check, ArrowRight, Sparkles, X, Eye, EyeOff } from 'lucide-react';
 import { getUserStorage, setUserStorage } from '@/lib/user-storage';
 import axios from 'axios';
 import { API_ENDPOINTS } from '@/lib/endpoints';
@@ -1123,6 +1123,7 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
     setError('');
@@ -1269,13 +1270,23 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
             </div>
             <div>
               <label className="text-white text-sm font-semibold block mb-2">Mot de passe</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full bg-gray-700/50 border border-cyan-400/30 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none transition"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full bg-gray-700/50 border border-cyan-400/30 rounded-xl px-4 py-3 pr-12 text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none transition"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition"
+                  aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
             </div>
           </div>
         ) : (
@@ -1339,13 +1350,23 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
 
             <div>
               <label className="text-white text-sm font-semibold block mb-2">Mot de passe</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Au moins 8 caractères"
-                className="w-full bg-gray-700/50 border border-cyan-400/30 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none transition"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Au moins 8 caractères"
+                  className="w-full bg-gray-700/50 border border-cyan-400/30 rounded-xl px-4 py-3 pr-12 text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none transition"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition"
+                  aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
             </div>
           </div>
         )}

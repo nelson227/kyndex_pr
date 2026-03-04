@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import AppLayout from '@/app/app-layout';
 import { createApiClient } from '@/lib/api-client';
 import { useAuth } from '@/hooks/useAuth';
+import { ChevronLeft } from 'lucide-react';
 
 interface User {
   id: string;
@@ -170,74 +171,77 @@ export function MessagesContent() {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 sm:gap-4 h-full p-2 sm:p-4">
-              {/* Conversations List */}
-              <div className={`${selectedConversation ? 'hidden lg:block' : 'col-span-1'} lg:col-span-1 bg-white rounded-lg border border-gray-200 overflow-y-auto`}>
-                {conversations.length === 0 ? (
-                  <div className="flex items-center justify-center h-full text-center">
-                    <div>
-                      <div className="text-4xl mb-2">💬</div>
-                      <p className="text-gray-600">Aucune conversation</p>
-                      <p className="text-gray-500 text-sm mt-2">
-                        Commencez une conversation en cliquant sur "Message"
-                      </p>
+            <div className="h-full">
+              {/* Mobile View - Single Panel */}
+              <div className={`lg:hidden h-full ${selectedConversation ? 'hidden' : 'block'}`}>
+                <div className="bg-white rounded-lg border border-gray-200 overflow-y-auto h-full">
+                  {conversations.length === 0 ? (
+                    <div className="flex items-center justify-center h-full text-center">
+                      <div>
+                        <div className="text-4xl mb-2">💬</div>
+                        <p className="text-gray-600">Aucune conversation</p>
+                        <p className="text-gray-500 text-sm mt-2">
+                          Commencez une conversation en cliquant sur "Message"
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  conversations.map((conv) => {
-                    const otherUser = getOtherParticipant(conv);
-                    const isSelected = selectedConversation?.id === conv.id;
-
-                    return (
-                      <button
-                        key={conv.id}
-                        onClick={() => setSelectedConversation(conv)}
-                        className={`w-full text-left px-3 sm:px-4 py-2 sm:py-4 border-b border-gray-100 hover:bg-blue-50 transition relative ${
-                          isSelected ? 'bg-blue-50 border-l-4 border-l-blue-600' : ''
-                        }`}
-                      >
-                        <div className="flex gap-2 sm:gap-3">
-                          {otherUser?.profile?.avatarUrl ? (
-                            <img
-                              src={`http://localhost:3001${otherUser.profile.avatarUrl}`}
-                              alt={otherUser.profile.firstName}
-                              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover flex-shrink-0"
-                            />
-                          ) : (
-                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-300 flex items-center justify-center text-lg sm:text-xl flex-shrink-0">
-                              👤
+                  ) : (
+                    conversations.map((conv) => {
+                      const otherUser = getOtherParticipant(conv);
+                      return (
+                        <button
+                          key={conv.id}
+                          onClick={() => setSelectedConversation(conv)}
+                          className="w-full text-left px-4 py-4 border-b border-gray-100 hover:bg-blue-50 transition"
+                        >
+                          <div className="flex gap-3">
+                            {otherUser?.profile?.avatarUrl ? (
+                              <img
+                                src={`http://localhost:3001${otherUser.profile.avatarUrl}`}
+                                alt={otherUser.profile.firstName}
+                                className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                              />
+                            ) : (
+                              <div className="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center text-xl flex-shrink-0">
+                                👤
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-gray-900 text-base truncate">
+                                {otherUser?.profile?.firstName} {otherUser?.profile?.lastName}
+                              </h3>
+                              <p className="text-sm text-gray-600 truncate">
+                                {conv.lastMessage?.content || 'Aucun message'}
+                              </p>
                             </div>
-                          )}
-
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-gray-900 text-sm sm:text-base truncate">
-                              {otherUser?.profile?.firstName} {otherUser?.profile?.lastName}
-                            </h3>
-                            <p className="text-xs sm:text-sm text-gray-600 truncate">
-                              {conv.lastMessage?.content || 'Aucun message'}
-                            </p>
+                            {unreadCounts[conv.id] > 0 && (
+                              <div className="flex items-center">
+                                <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                                  {unreadCounts[conv.id]}
+                                </span>
+                              </div>
+                            )}
                           </div>
-
-                          {unreadCounts[conv.id] > 0 && (
-                            <div className="flex items-center">
-                              <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                                {unreadCounts[conv.id]}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </button>
-                    );
-                  })
-                )}
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
               </div>
 
-              {/* Chat Area */}
-              {selectedConversation ? (
-                <div className="col-span-1 lg:col-span-2 bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col h-full">
-                  {/* Header */}
-                  <div className="px-3 sm:px-6 py-2 sm:py-4 border-b border-gray-200 flex items-center justify-between">
-                    <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+              {/* Mobile View - Chat Panel */}
+              {selectedConversation && (
+                <div className="lg:hidden h-full bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col">
+                  {/* Header with Back Button */}
+                  <div className="px-4 py-4 border-b border-gray-200 flex items-center justify-between">
+                    <button
+                      onClick={() => setSelectedConversation(null)}
+                      className="p-2 hover:bg-gray-100 rounded-lg transition -ml-2"
+                      title="Retour aux conversations"
+                    >
+                      <ChevronLeft size={24} className="text-gray-700" />
+                    </button>
+                    <div className="flex items-center gap-3 flex-1 min-w-0 ml-2">
                       {(() => {
                         const otherUser = getOtherParticipant(selectedConversation);
                         return (
@@ -246,40 +250,31 @@ export function MessagesContent() {
                               <img
                                 src={`http://localhost:3001${otherUser.profile.avatarUrl}`}
                                 alt={otherUser.profile.firstName}
-                                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0"
+                                className="w-10 h-10 rounded-full object-cover flex-shrink-0"
                               />
                             ) : (
-                              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-300 flex items-center justify-center text-sm sm:text-lg flex-shrink-0">
+                              <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-lg flex-shrink-0">
                                 👤
                               </div>
                             )}
                             <div className="min-w-0 flex-1">
-                              <h2 className="font-semibold text-gray-900 text-sm sm:text-base truncate">
+                              <h2 className="font-semibold text-gray-900 text-base truncate">
                                 {otherUser?.profile?.firstName} {otherUser?.profile?.lastName}
                               </h2>
-                              <p className="text-xs sm:text-sm text-gray-600 truncate">{otherUser?.email}</p>
                             </div>
                           </>
                         );
                       })()}
                     </div>
-                    {/* Back button for mobile */}
-                    <button
-                      onClick={() => setSelectedConversation(null)}
-                      className="lg:hidden ml-2 p-2 hover:bg-gray-100 rounded-lg transition"
-                      title="Retour"
-                    >
-                      ←
-                    </button>
                   </div>
 
                   {/* Messages */}
-                  <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-2 sm:py-4 space-y-2 sm:space-y-4">
+                  <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
                     {selectedConversation && selectedConversation.messages && selectedConversation.messages.length === 0 ? (
                       <div className="flex items-center justify-center h-full text-center">
                         <div>
-                          <div className="text-3xl sm:text-4xl mb-2">👋</div>
-                          <p className="text-gray-600 text-sm sm:text-base">Commencez une conversation!</p>
+                          <div className="text-4xl mb-2">👋</div>
+                          <p className="text-gray-600">Commencez une conversation!</p>
                         </div>
                       </div>
                     ) : selectedConversation && selectedConversation.messages ? (
@@ -291,7 +286,7 @@ export function MessagesContent() {
                             className={`flex ${isMyMessage ? 'justify-end' : 'justify-start'}`}
                           >
                             <div
-                              className={`max-w-xs sm:max-w-sm px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm ${
+                              className={`max-w-xs px-4 py-2 rounded-lg text-sm ${
                                 isMyMessage
                                   ? 'bg-blue-600 text-white rounded-br-none'
                                   : 'bg-gray-100 text-gray-900 rounded-bl-none'
@@ -316,7 +311,7 @@ export function MessagesContent() {
                   </div>
 
                   {/* Input */}
-                  <div className="px-2 sm:px-6 py-2 sm:py-4 border-t border-gray-200 flex gap-2 bg-white flex-shrink-0">
+                  <div className="px-4 py-4 border-t border-gray-200 flex gap-2 bg-white flex-shrink-0">
                     <input
                       type="text"
                       value={messageText}
@@ -330,22 +325,184 @@ export function MessagesContent() {
                     <button
                       onClick={handleSendMessage}
                       disabled={!messageText.trim() || sending}
-                      className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 transition text-sm flex-shrink-0"
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 transition text-sm flex-shrink-0"
                     >
                       {sending ? '⏳' : '📤'}
                     </button>
                   </div>
                 </div>
-              ) : (
-                <div className="hidden lg:flex col-span-1 lg:col-span-2 bg-white rounded-lg border border-gray-200 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="text-4xl sm:text-5xl mb-4">💬</div>
-                    <p className="text-gray-600 text-base sm:text-lg">
-                      Sélectionnez une conversation
-                    </p>
-                  </div>
-                </div>
               )}
+
+              {/* Desktop View - Grid Layout */}
+              <div className="hidden lg:grid grid-cols-3 gap-4 h-full p-4">
+                {/* Conversations List */}
+                <div className="col-span-1 bg-white rounded-lg border border-gray-200 overflow-y-auto">
+                  {conversations.length === 0 ? (
+                    <div className="flex items-center justify-center h-full text-center">
+                      <div>
+                        <div className="text-4xl mb-2">💬</div>
+                        <p className="text-gray-600">Aucune conversation</p>
+                        <p className="text-gray-500 text-sm mt-2">
+                          Commencez une conversation en cliquant sur "Message"
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    conversations.map((conv) => {
+                      const otherUser = getOtherParticipant(conv);
+                      const isSelected = selectedConversation?.id === conv.id;
+
+                      return (
+                        <button
+                          key={conv.id}
+                          onClick={() => setSelectedConversation(conv)}
+                          className={`w-full text-left px-4 py-4 border-b border-gray-100 hover:bg-blue-50 transition relative ${
+                            isSelected ? 'bg-blue-50 border-l-4 border-l-blue-600' : ''
+                          }`}
+                        >
+                          <div className="flex gap-3">
+                            {otherUser?.profile?.avatarUrl ? (
+                              <img
+                                src={`http://localhost:3001${otherUser.profile.avatarUrl}`}
+                                alt={otherUser.profile.firstName}
+                                className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                              />
+                            ) : (
+                              <div className="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center text-xl flex-shrink-0">
+                                👤
+                              </div>
+                            )}
+
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-gray-900 text-base truncate">
+                                {otherUser?.profile?.firstName} {otherUser?.profile?.lastName}
+                              </h3>
+                              <p className="text-sm text-gray-600 truncate">
+                                {conv.lastMessage?.content || 'Aucun message'}
+                              </p>
+                            </div>
+
+                            {unreadCounts[conv.id] > 0 && (
+                              <div className="flex items-center">
+                                <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                                  {unreadCounts[conv.id]}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+
+                {/* Chat Area */}
+                {selectedConversation ? (
+                  <div className="col-span-2 bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col h-full">
+                    {/* Header */}
+                    <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        {(() => {
+                          const otherUser = getOtherParticipant(selectedConversation);
+                          return (
+                            <>
+                              {otherUser?.profile?.avatarUrl ? (
+                                <img
+                                  src={`http://localhost:3001${otherUser.profile.avatarUrl}`}
+                                  alt={otherUser.profile.firstName}
+                                  className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                                />
+                              ) : (
+                                <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-lg flex-shrink-0">
+                                  👤
+                                </div>
+                              )}
+                              <div className="min-w-0 flex-1">
+                                <h2 className="font-semibold text-gray-900 text-base truncate">
+                                  {otherUser?.profile?.firstName} {otherUser?.profile?.lastName}
+                                </h2>
+                                <p className="text-sm text-gray-600 truncate">{otherUser?.email}</p>
+                              </div>
+                            </>
+                          );
+                        })()}
+                      </div>
+                    </div>
+
+                    {/* Messages */}
+                    <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+                      {selectedConversation && selectedConversation.messages && selectedConversation.messages.length === 0 ? (
+                        <div className="flex items-center justify-center h-full text-center">
+                          <div>
+                            <div className="text-4xl mb-2">👋</div>
+                            <p className="text-gray-600">Commencez une conversation!</p>
+                          </div>
+                        </div>
+                      ) : selectedConversation && selectedConversation.messages ? (
+                        selectedConversation.messages.map((msg) => {
+                          const isMyMessage = msg.senderId === user?.id;
+                          return (
+                            <div
+                              key={msg.id}
+                              className={`flex ${isMyMessage ? 'justify-end' : 'justify-start'}`}
+                            >
+                              <div
+                                className={`max-w-sm px-4 py-2 rounded-lg text-sm ${
+                                  isMyMessage
+                                    ? 'bg-blue-600 text-white rounded-br-none'
+                                    : 'bg-gray-100 text-gray-900 rounded-bl-none'
+                                }`}
+                              >
+                                <p>{msg.content}</p>
+                                <p
+                                  className={`text-xs mt-1 ${
+                                    isMyMessage ? 'text-blue-100' : 'text-gray-600'
+                                  }`}
+                                >
+                                  {new Date(msg.createdAt).toLocaleTimeString('fr-FR', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  })}
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })
+                      ) : null}
+                    </div>
+
+                    {/* Input */}
+                    <div className="px-6 py-4 border-t border-gray-200 flex gap-2 bg-white flex-shrink-0">
+                      <input
+                        type="text"
+                        value={messageText}
+                        onChange={(e) => setMessageText(e.target.value)}
+                        onKeyPress={(e) => {
+                            handleKeyPress(e)
+                        }}
+                        placeholder="Message..."
+                        className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      <button
+                        onClick={handleSendMessage}
+                        disabled={!messageText.trim() || sending}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 transition text-sm flex-shrink-0"
+                      >
+                        {sending ? '⏳' : '📤'}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="col-span-2 bg-white rounded-lg border border-gray-200 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="text-5xl mb-4">💬</div>
+                      <p className="text-gray-600 text-lg">
+                        Sélectionnez une conversation
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
