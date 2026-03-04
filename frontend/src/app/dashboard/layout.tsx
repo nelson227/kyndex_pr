@@ -9,11 +9,11 @@ import { useEffect, useState } from 'react';
 
 const getMenuItems = (unreadMessages: number, calendarNotes: number): any[] => [
   { id: 'home', label: 'Accueil', icon: '🏠', href: '/dashboard', badge: null },
-  { id: 'requests', label: 'Mes demandes', icon: '📋', href: '/dashboard/requests', badge: null },
-  { id: 'missions', label: 'Mes missions', icon: '🎯', href: '/dashboard/missions', badge: null },
+  { id: 'requests', label: 'Demandes', icon: '📋', href: '/dashboard/requests', badge: null },
+  { id: 'missions', label: 'Missions', icon: '🎯', href: '/dashboard/missions', badge: null },
   { id: 'messages', label: 'Messagerie', icon: '💬', href: '/dashboard/messages', badge: unreadMessages > 0 ? unreadMessages : null },
   { id: 'calendar', label: 'Calendrier', icon: '📅', href: '/dashboard/calendar', badge: calendarNotes > 0 ? calendarNotes : null },
-  { id: 'account', label: 'Comptes', icon: '👤', href: '/dashboard/account', badge: null },
+  { id: 'account', label: 'Compte', icon: '👤', href: '/dashboard/account', badge: null },
 ];
 
 export default function DashboardLayout({
@@ -54,9 +54,9 @@ export default function DashboardLayout({
   };
 
   return (
-    <div className="flex min-h-screen bg-black">
-      {/* Sidebar */}
-      <div className="w-64 bg-gray-950 border-r border-gray-800 fixed h-screen overflow-y-auto">
+    <div className="flex flex-col md:flex-row min-h-screen bg-black">
+      {/* Sidebar - DESKTOP ONLY */}
+      <div className="hidden md:flex md:w-64 md:flex-col bg-gray-950 border-r border-gray-800 fixed md:relative h-screen overflow-y-auto">
         {/* Logo */}
         <div className="p-6 border-b border-gray-800">
           <Link href="/dashboard" className="flex items-center gap-2">
@@ -145,9 +145,9 @@ export default function DashboardLayout({
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 ml-64 bg-black overflow-hidden">
-        {/* Top Header */}
-        <div className="border-b border-gray-800 sticky top-0 z-40 bg-black/80 backdrop-blur">
+      <div className="flex-1 flex flex-col md:ml-0 bg-black overflow-hidden">
+        {/* Top Header - DESKTOP */}
+        <div className="hidden md:block border-b border-gray-800 sticky top-0 z-40 bg-black/80 backdrop-blur">
           <div className="px-8 py-4 flex justify-between items-center">
             <div></div>
             <div className="flex-1 mx-8">
@@ -165,8 +165,38 @@ export default function DashboardLayout({
         </div>
 
         {/* Page Content */}
-        <div className="p-8">
+        <div className="flex-1 overflow-y-auto pb-20 md:pb-8 px-4 xs2:px-6 sm:px-8 md:p-8">
           {children}
+        </div>
+      </div>
+
+      {/* Bottom Navigation - MOBILE ONLY */}
+      <div className="fixed md:hidden bottom-0 left-0 right-0 bg-gray-950 border-t border-gray-800 z-50 safe-area-inset-bottom">
+        <div className="flex justify-around items-center h-20">
+          {menuItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.id}
+                href={item.href}
+                className={`flex flex-col items-center justify-center w-full h-20 transition relative ${
+                  isActive
+                    ? 'text-cyan-400'
+                    : 'text-gray-400'
+                }`}
+              >
+                <span className="text-2xl mb-1">{item.icon}</span>
+                <span className={`text-xs font-medium ${isActive ? 'text-cyan-400' : 'text-gray-400'}`}>
+                  {item.label}
+                </span>
+                {item.badge && (
+                  <span className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                    {item.badge}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
         </div>
       </div>
     </div>
