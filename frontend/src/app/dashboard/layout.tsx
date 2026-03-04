@@ -56,7 +56,7 @@ export default function DashboardLayout({
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-black">
       {/* Sidebar - DESKTOP ONLY */}
-      <div className="hidden md:flex md:w-64 md:flex-col bg-gray-950 border-r border-gray-800 fixed md:relative h-screen overflow-y-auto">
+      <div className="hidden md:flex md:w-64 md:flex-col bg-gray-950 border-r border-gray-800 sticky top-0 h-screen overflow-y-auto">
         {/* Logo */}
         <div className="p-6 border-b border-gray-800">
           <Link href="/dashboard" className="flex items-center gap-2">
