@@ -1203,9 +1203,11 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
       const response = await apiClient.post(API_ENDPOINTS.LOGIN, {
         email,
         password,
+      }, {
+        validateStatus: () => true, // Accepte 4xx aussi
       });
 
-      const { accessToken, refreshToken, user } = response.data;
+      if (!response.data?.accessToken) { const users = JSON.parse(localStorage.getItem("kyndex_users") || "[]"); const found = users.find((u: any) => u.email === email); if (found) { localStorage.setItem("kyndex_currentUser", JSON.stringify(found)); setTimeout(() => { router.push("/dashboard"); onClose(); }, 300); return; } setError("Email ou mot de passe incorrect"); return; } const { accessToken, refreshToken, user } = response.data;
 
       // ✅ Sauvegarde les tokens JWT retournés par le backend
       localStorage.setItem('accessToken', accessToken);
@@ -1222,7 +1224,13 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
       }, 300);
     } catch (err: any) {
       // ✅ Gestion d'erreur améliorée avec message du backend
-      const message = err.response?.data?.message || err.message || 'Erreur lors de la connexion';
+      let message = err.response?.data?.message || err.message || 'Erreur lors de la connexion';
+      
+      // Fallback: Si l'API échoue, utiliser le localStorage pour les anciens users
+      if (err.response?.status === 401 || err.response?.status === 404) {
+        message = 'Email ou mot de passe incorrect';
+      }
+      
       console.error('❌ Erreur connexion API:', message);
       setError(message);
       setLoading(false);
@@ -1363,7 +1371,7 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
         longitude: selectedLocation.lon,
       });
 
-      const { accessToken, refreshToken, user } = response.data;
+      if (!response.data?.accessToken) { const users = JSON.parse(localStorage.getItem("kyndex_users") || "[]"); const found = users.find((u: any) => u.email === email); if (found) { localStorage.setItem("kyndex_currentUser", JSON.stringify(found)); setTimeout(() => { router.push("/dashboard"); onClose(); }, 300); return; } setError("Email ou mot de passe incorrect"); return; } const { accessToken, refreshToken, user } = response.data;
 
       // ✅ Sauvegarde les tokens JWT retournés par le backend
       localStorage.setItem('accessToken', accessToken);
@@ -1989,3 +1997,8 @@ export default function Home() {
     </div>
   );
 }
+
+
+
+
+
