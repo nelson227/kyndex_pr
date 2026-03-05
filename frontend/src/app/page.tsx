@@ -1117,44 +1117,44 @@ const ProviderProfileModal = ({
 // ============================================================
 
 const countryCodes = [
-  { code: '+1', country: 'États-Unis 🇺🇸', name: 'US' },
-  { code: '+1', country: 'Canada 🇨🇦', name: 'CA' },
-  { code: '+33', country: 'France 🇫🇷', name: 'FR' },
-  { code: '+44', country: 'Royaume-Uni 🇬🇧', name: 'GB' },
-  { code: '+49', country: 'Allemagne 🇩🇪', name: 'DE' },
-  { code: '+39', country: 'Italie 🇮🇹', name: 'IT' },
-  { code: '+34', country: 'Espagne 🇪🇸', name: 'ES' },
-  { code: '+41', country: 'Suisse 🇨🇭', name: 'CH' },
-  { code: '+43', country: 'Autriche 🇦🇹', name: 'AT' },
-  { code: '+32', country: 'Belgique 🇧🇪', name: 'BE' },
-  { code: '+31', country: 'Pays-Bas 🇳🇱', name: 'NL' },
-  { code: '+46', country: 'Suède 🇸🇪', name: 'SE' },
-  { code: '+45', country: 'Danemark 🇩🇰', name: 'DK' },
-  { code: '+47', country: 'Norvège 🇳🇴', name: 'NO' },
-  { code: '+358', country: 'Finlande 🇫🇮', name: 'FI' },
-  { code: '+30', country: 'Grèce 🇬🇷', name: 'GR' },
-  { code: '+48', country: 'Pologne 🇵🇱', name: 'PL' },
-  { code: '+91', country: 'Inde 🇮🇳', name: 'IN' },
-  { code: '+81', country: 'Japon 🇯🇵', name: 'JP' },
-  { code: '+86', country: 'Chine 🇨🇳', name: 'CN' },
-  { code: '+82', country: 'Corée du Sud 🇰🇷', name: 'KR' },
-  { code: '+852', country: 'Hong Kong 🇭🇰', name: 'HK' },
-  { code: '+65', country: 'Singapour 🇸🇬', name: 'SG' },
-  { code: '+60', country: 'Malaisie 🇲🇾', name: 'MY' },
-  { code: '+66', country: 'Thaïlande 🇹🇭', name: 'TH' },
-  { code: '+84', country: 'Viêt Nam 🇻🇳', name: 'VN' },
-  { code: '+62', country: 'Indonésie 🇮🇩', name: 'ID' },
-  { code: '+63', country: 'Philippines 🇵🇭', name: 'PH' },
-  { code: '+61', country: 'Australie 🇦🇺', name: 'AU' },
-  { code: '+64', country: 'Nouvelle-Zélande 🇳🇿', name: 'NZ' },
-  { code: '+27', country: 'Afrique du Sud 🇿🇦', name: 'ZA' },
-  { code: '+55', country: 'Brésil 🇧🇷', name: 'BR' },
-  { code: '+56', country: 'Chili 🇨🇱', name: 'CL' },
-  { code: '+57', country: 'Colombie 🇨🇴', name: 'CO' },
-  { code: '+51', country: 'Pérou 🇵🇪', name: 'PE' },
-  { code: '+54', country: 'Argentine 🇦🇷', name: 'AR' },
-  { code: '+58', country: 'Vénézuela 🇻🇪', name: 'VE' },
-  { code: '+52', country: 'Mexique 🇲🇽', name: 'MX' },
+  { code: '+1', country: 'US', flag: '🇺🇸' },
+  { code: '+1', country: 'CA', flag: '🇨🇦' },
+  { code: '+33', country: 'FR', flag: '🇫🇷' },
+  { code: '+44', country: 'GB', flag: '🇬🇧' },
+  { code: '+49', country: 'DE', flag: '🇩🇪' },
+  { code: '+39', country: 'IT', flag: '🇮🇹' },
+  { code: '+34', country: 'ES', flag: '🇪🇸' },
+  { code: '+41', country: 'CH', flag: '🇨🇭' },
+  { code: '+43', country: 'AT', flag: '🇦🇹' },
+  { code: '+32', country: 'BE', flag: '🇧🇪' },
+  { code: '+31', country: 'NL', flag: '🇳🇱' },
+  { code: '+46', country: 'SE', flag: '🇸🇪' },
+  { code: '+45', country: 'DK', flag: '🇩🇰' },
+  { code: '+47', country: 'NO', flag: '🇳🇴' },
+  { code: '+358', country: 'FI', flag: '🇫🇮' },
+  { code: '+30', country: 'GR', flag: '🇬🇷' },
+  { code: '+48', country: 'PL', flag: '🇵🇱' },
+  { code: '+91', country: 'IN', flag: '🇮🇳' },
+  { code: '+81', country: 'JP', flag: '🇯🇵' },
+  { code: '+86', country: 'CN', flag: '🇨🇳' },
+  { code: '+82', country: 'KR', flag: '🇰🇷' },
+  { code: '+852', country: 'HK', flag: '🇭🇰' },
+  { code: '+65', country: 'SG', flag: '🇸🇬' },
+  { code: '+60', country: 'MY', flag: '🇲🇾' },
+  { code: '+66', country: 'TH', flag: '🇹🇭' },
+  { code: '+84', country: 'VN', flag: '🇻🇳' },
+  { code: '+62', country: 'ID', flag: '🇮🇩' },
+  { code: '+63', country: 'PH', flag: '🇵🇭' },
+  { code: '+61', country: 'AU', flag: '🇦🇺' },
+  { code: '+64', country: 'NZ', flag: '🇳🇿' },
+  { code: '+27', country: 'ZA', flag: '🇿🇦' },
+  { code: '+55', country: 'BR', flag: '🇧🇷' },
+  { code: '+56', country: 'CL', flag: '🇨🇱' },
+  { code: '+57', country: 'CO', flag: '🇨🇴' },
+  { code: '+51', country: 'PE', flag: '🇵🇪' },
+  { code: '+54', country: 'AR', flag: '🇦🇷' },
+  { code: '+58', country: 'VE', flag: '🇻🇪' },
+  { code: '+52', country: 'MX', flag: '🇲🇽' },
 ];
 
 interface LocationSuggestion {
@@ -1496,18 +1496,18 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
               />
             </div>
 
-            {/* ✅ Champ Téléphone avec sélecteur de code pays */}
+            {/* ✅ Champ Téléphone avec sélecteur de code pays compact */}
             <div className="grid grid-cols-3 gap-2">
               <div>
-                <label className="text-white text-sm font-semibold block mb-2">Code Pays</label>
+                <label className="text-white text-sm font-semibold block mb-2">Pays</label>
                 <select
                   value={countryCode}
                   onChange={(e) => setCountryCode(e.target.value)}
-                  className="w-full bg-gray-700/50 border border-cyan-400/30 rounded-xl px-2 py-3 text-white text-sm focus:border-cyan-400 focus:outline-none transition"
+                  className="w-full bg-gray-700/50 border border-cyan-400/30 rounded-xl px-2 py-3 text-white text-xs focus:border-cyan-400 focus:outline-none transition"
                 >
                   {countryCodes.map((cc) => (
-                    <option key={cc.name} value={cc.code}>
-                      {cc.code} {cc.country}
+                    <option key={cc.country} value={cc.code}>
+                      {cc.flag} {cc.country} {cc.code}
                     </option>
                   ))}
                 </select>
@@ -1518,7 +1518,7 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="Ex: 6 12 34 56 78"
+                  placeholder="6 12 34 56 78"
                   className="w-full bg-gray-700/50 border border-cyan-400/30 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none transition"
                 />
               </div>
