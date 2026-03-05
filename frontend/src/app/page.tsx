@@ -1112,6 +1112,58 @@ const ProviderProfileModal = ({
 };
 
 // Auth Modal Component
+// ============================================================
+// COUNTRY CODES & LOCATION DATA
+// ============================================================
+
+const countryCodes = [
+  { code: '+1', country: 'États-Unis 🇺🇸', name: 'US' },
+  { code: '+1', country: 'Canada 🇨🇦', name: 'CA' },
+  { code: '+33', country: 'France 🇫🇷', name: 'FR' },
+  { code: '+44', country: 'Royaume-Uni 🇬🇧', name: 'GB' },
+  { code: '+49', country: 'Allemagne 🇩🇪', name: 'DE' },
+  { code: '+39', country: 'Italie 🇮🇹', name: 'IT' },
+  { code: '+34', country: 'Espagne 🇪🇸', name: 'ES' },
+  { code: '+41', country: 'Suisse 🇨🇭', name: 'CH' },
+  { code: '+43', country: 'Autriche 🇦🇹', name: 'AT' },
+  { code: '+32', country: 'Belgique 🇧🇪', name: 'BE' },
+  { code: '+31', country: 'Pays-Bas 🇳🇱', name: 'NL' },
+  { code: '+46', country: 'Suède 🇸🇪', name: 'SE' },
+  { code: '+45', country: 'Danemark 🇩🇰', name: 'DK' },
+  { code: '+47', country: 'Norvège 🇳🇴', name: 'NO' },
+  { code: '+358', country: 'Finlande 🇫🇮', name: 'FI' },
+  { code: '+30', country: 'Grèce 🇬🇷', name: 'GR' },
+  { code: '+48', country: 'Pologne 🇵🇱', name: 'PL' },
+  { code: '+91', country: 'Inde 🇮🇳', name: 'IN' },
+  { code: '+81', country: 'Japon 🇯🇵', name: 'JP' },
+  { code: '+86', country: 'Chine 🇨🇳', name: 'CN' },
+  { code: '+82', country: 'Corée du Sud 🇰🇷', name: 'KR' },
+  { code: '+852', country: 'Hong Kong 🇭🇰', name: 'HK' },
+  { code: '+65', country: 'Singapour 🇸🇬', name: 'SG' },
+  { code: '+60', country: 'Malaisie 🇲🇾', name: 'MY' },
+  { code: '+66', country: 'Thaïlande 🇹🇭', name: 'TH' },
+  { code: '+84', country: 'Viêt Nam 🇻🇳', name: 'VN' },
+  { code: '+62', country: 'Indonésie 🇮🇩', name: 'ID' },
+  { code: '+63', country: 'Philippines 🇵🇭', name: 'PH' },
+  { code: '+61', country: 'Australie 🇦🇺', name: 'AU' },
+  { code: '+64', country: 'Nouvelle-Zélande 🇳🇿', name: 'NZ' },
+  { code: '+27', country: 'Afrique du Sud 🇿🇦', name: 'ZA' },
+  { code: '+55', country: 'Brésil 🇧🇷', name: 'BR' },
+  { code: '+56', country: 'Chili 🇨🇱', name: 'CL' },
+  { code: '+57', country: 'Colombie 🇨🇴', name: 'CO' },
+  { code: '+51', country: 'Pérou 🇵🇪', name: 'PE' },
+  { code: '+54', country: 'Argentine 🇦🇷', name: 'AR' },
+  { code: '+58', country: 'Vénézuela 🇻🇪', name: 'VE' },
+  { code: '+52', country: 'Mexique 🇲🇽', name: 'MX' },
+];
+
+interface LocationSuggestion {
+  name: string;
+  address: string;
+  lat: number;
+  lon: number;
+}
+
 const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean; onClose: () => void; initialMode?: 'login' | 'signup' }) => {
   const router = useRouter();
   const [mode, setMode] = useState<'login' | 'signup'>(initialMode);
@@ -1119,7 +1171,11 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
   const [lastname, setLastname] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [countryCode, setCountryCode] = useState('+1');
   const [location, setLocation] = useState('');
+  const [locationSuggestions, setLocationSuggestions] = useState<LocationSuggestion[]>([]);
+  const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState<LocationSuggestion | null>(null);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -1172,6 +1228,49 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
     }
   };
 
+  // ✅ Fonction pour chercher les suggestions de localisation via Nominatim API
+  const fetchLocationSuggestions = async (query: string) => {
+    if (query.length < 2) {
+      setLocationSuggestions([]);
+      setShowLocationSuggestions(false);
+      return;
+    }
+
+    try {
+      // ✅ Utilise Nominatim (OpenStreetMap) pour l'autocomplétion d'adresses
+      const response = await axios.get('https://nominatim.openstreetmap.org/search', {
+        params: {
+          q: query,
+          format: 'json',
+          limit: 5,
+          addressdetails: 1,
+        },
+      });
+
+      if (response.data && Array.isArray(response.data)) {
+        const suggestions = response.data.map((item: any) => ({
+          name: item.name || item.display_name?.split(',')[0] || query,
+          address: item.display_name || item.address?.road || query,
+          lat: parseFloat(item.lat),
+          lon: parseFloat(item.lon),
+        }));
+        setLocationSuggestions(suggestions);
+        setShowLocationSuggestions(true);
+      }
+    } catch (err) {
+      console.error('Erreur lors de la recherche de localisation:', err);
+      setLocationSuggestions([]);
+    }
+  };
+
+  // ✅ Sélectionner une suggestion de localisation
+  const selectLocationSuggestion = (suggestion: LocationSuggestion) => {
+    setLocation(suggestion.address);
+    setSelectedLocation(suggestion);
+    setShowLocationSuggestions(false);
+    setLocationSuggestions([]);
+  };
+
   const handleSignup = async () => {
     setError('');
     
@@ -1192,8 +1291,8 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
       setError('Le téléphone est requis');
       return;
     }
-    if (!location) {
-      setError('La localisation est requise');
+    if (!location || !selectedLocation) {
+      setError('Vous devez sélectionner une localisation valide depuis les suggestions');
       return;
     }
     if (!password) {
@@ -1208,16 +1307,19 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
       return;
     }
 
+    // ✅ Construction du numéro de téléphone complet avec code pays
+    const fullPhone = `${countryCode}${phone.replace(/^[\+\d\s\-\(\)]/g, '').trim()}`;
+
     // ✅ Validation format téléphone (accepte plusieurs formats)
     const phoneRegex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
-    if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
+    if (!phoneRegex.test(fullPhone.replace(/\s/g, ''))) {
       setError('Numéro de téléphone invalide (ex: +33 6 12 34 56 78 ou 0612345678)');
       return;
     }
 
-    // ✅ Validation localisation (non vide et pas trop court)
-    if (location.trim().length < 2) {
-      setError('Localisation invalide (minimum 2 caractères)');
+    // ✅ Validation localisation (confirmée avec Nominatim)
+    if (!selectedLocation) {
+      setError('Localisation invalide. Veuillez sélectionner une localisation depuis les suggestions');
       return;
     }
 
@@ -1237,8 +1339,10 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
         lastName: lastname,
         email,
         password,
-        phone,
-        location,
+        phone: fullPhone,
+        location: selectedLocation.address,
+        latitude: selectedLocation.lat,
+        longitude: selectedLocation.lon,
       });
 
       const { accessToken, refreshToken, user } = response.data;
@@ -1381,27 +1485,82 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            {/* ✅ Champ Téléphone avec sélecteur de code pays */}
+            <div className="grid grid-cols-3 gap-2">
               <div>
+                <label className="text-white text-sm font-semibold block mb-2">Code Pays</label>
+                <select
+                  value={countryCode}
+                  onChange={(e) => setCountryCode(e.target.value)}
+                  className="w-full bg-gray-700/50 border border-cyan-400/30 rounded-xl px-2 py-3 text-white text-sm focus:border-cyan-400 focus:outline-none transition"
+                >
+                  {countryCodes.map((cc) => (
+                    <option key={cc.name} value={cc.code}>
+                      {cc.code} {cc.country}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="col-span-2">
                 <label className="text-white text-sm font-semibold block mb-2">Téléphone</label>
                 <input
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="Ex: +1 514 123 4567"
+                  placeholder="Ex: 6 12 34 56 78"
                   className="w-full bg-gray-700/50 border border-cyan-400/30 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none transition"
                 />
               </div>
-              <div>
-                <label className="text-white text-sm font-semibold block mb-2">Localisation</label>
-                <input
-                  type="text"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  placeholder="Montreal"
-                  className="w-full bg-gray-700/50 border border-cyan-400/30 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none transition"
-                />
-              </div>
+            </div>
+
+            {/* ✅ Champ Localisation avec autocomplétion */}
+            <div className="relative">
+              <label className="text-white text-sm font-semibold block mb-2">Localisation 📍</label>
+              <input
+                type="text"
+                value={location}
+                onChange={(e) => {
+                  setLocation(e.target.value);
+                  fetchLocationSuggestions(e.target.value);
+                }}
+                onFocus={() => {
+                  if (locationSuggestions.length > 0) {
+                    setShowLocationSuggestions(true);
+                  }
+                }}
+                placeholder="Cherchez une adresse (ex: Montreal, Paris...)"
+                className={`w-full bg-gray-700/50 border ${
+                  selectedLocation ? 'border-green-400/50' : 'border-cyan-400/30'
+                } rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none transition`}
+              />
+              {selectedLocation && (
+                <div className="text-green-400 text-xs mt-1 flex items-center gap-1">
+                  ✅ Adresse validée
+                </div>
+              )}
+              
+              {/* Affiche les suggestions d'autocomplétion */}
+              {showLocationSuggestions && locationSuggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 bg-gray-800 border border-cyan-400/50 rounded-xl mt-1 z-10 max-h-48 overflow-y-auto">
+                  {locationSuggestions.map((suggestion, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => selectLocationSuggestion(suggestion)}
+                      className="w-full text-left px-4 py-2 hover:bg-cyan-500/20 text-white text-sm border-b border-gray-700 last:border-0 transition"
+                    >
+                      <div className="font-semibold text-cyan-300">{suggestion.name}</div>
+                      <div className="text-gray-400 text-xs truncate">{suggestion.address}</div>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {location && !selectedLocation && locationSuggestions.length === 0 && location.length >= 2 && (
+                <div className="text-yellow-400 text-xs mt-1">
+                  ⚠️ Veuillez sélectionner une adresse depuis les suggestions
+                </div>
+              )}
             </div>
 
             <div>

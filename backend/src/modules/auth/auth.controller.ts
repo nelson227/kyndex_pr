@@ -40,6 +40,8 @@ export class AuthController {
         registerDto.lastName,
         registerDto.phone,
         registerDto.location,
+        registerDto.latitude,
+        registerDto.longitude,
       );
       
       return result;

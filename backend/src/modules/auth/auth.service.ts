@@ -66,6 +66,8 @@ export class AuthService {
     lastName: string,
     phone?: string,
     location?: string,
+    latitude?: number,
+    longitude?: number,
   ) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -78,6 +80,8 @@ export class AuthService {
             firstName,
             lastName,
             location,
+            latitude,
+            longitude,
             // Note: phone field not yet in schema, can be added to Profile in future migration
           },
         },
