@@ -1534,14 +1534,14 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
                   const newLocation = e.target.value;
                   setLocation(newLocation);
                   setSelectedLocation(null); // Reset la sélection quand on modifie
+                  setShowLocationSuggestions(true); // ✅ Afficher le dropdown immédiatement
                   fetchLocationSuggestions(newLocation);
                 }}
-                onFocus={() => {
-                  if (location.length >= 1 && locationSuggestions.length > 0) {
-                    setShowLocationSuggestions(true);
-                  }
+                onBlur={() => {
+                  // Fermer le dropdown après un léger délai si on quitte le champ
+                  setTimeout(() => setShowLocationSuggestions(false), 200);
                 }}
-                placeholder="Entrez une adresse (ex: 5360 A, Paris, Montreal...)"
+                placeholder="Entrez une adresse (ex: 5360, Paris, Montreal...)"
                 className={`w-full bg-gray-700/50 border ${
                   selectedLocation ? 'border-green-400/50' : 'border-cyan-400/30'
                 } rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none transition`}
@@ -1552,32 +1552,32 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
                 </div>
               )}
               
-              {/* Affiche les suggestions d'autocomplétion en temps réel */}
-              {showLocationSuggestions && locationSuggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 bg-gray-800 border border-cyan-400/50 rounded-xl mt-1 shadow-lg max-h-56 overflow-y-auto">
-                  {locationSuggestions.map((suggestion, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => selectLocationSuggestion(suggestion)}
-                      className="w-full text-left px-4 py-3 hover:bg-cyan-500/30 text-white text-sm border-b border-gray-700/50 last:border-0 transition duration-150 ease-in-out"
-                    >
-                      <div className="font-semibold text-cyan-300 truncate">{suggestion.name}</div>
-                      <div className="text-gray-400 text-xs truncate">{suggestion.address}</div>
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {location && !selectedLocation && location.length >= 1 && locationSuggestions.length === 0 && (
-                <div className="text-yellow-400 text-xs mt-1 flex items-center gap-1">
-                  ⏳ Recherche en cours...
+              {/* ✅ Affiche les suggestions d'autocomplétion en dropdown */}
+              {showLocationSuggestions && location.length >= 1 && (
+                <div className="absolute top-full left-0 right-0 bg-gray-800 border border-cyan-400/50 rounded-xl mt-1 shadow-lg max-h-56 overflow-y-auto z-50">
+                  {locationSuggestions.length > 0 ? (
+                    locationSuggestions.map((suggestion, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => selectLocationSuggestion(suggestion)}
+                        className="w-full text-left px-4 py-3 hover:bg-cyan-500/30 text-white text-sm border-b border-gray-700/50 last:border-0 transition duration-150 ease-in-out"
+                      >
+                        <div className="font-semibold text-cyan-300 truncate">{suggestion.name}</div>
+                        <div className="text-gray-400 text-xs truncate">{suggestion.address}</div>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="px-4 py-3 text-gray-400 text-sm text-center">
+                      ⏳ Recherche en cours...
+                    </div>
+                  )}
                 </div>
               )}
 
               {location && !selectedLocation && location.length >= 1 && locationSuggestions.length > 0 && !showLocationSuggestions && (
                 <div className="text-yellow-400 text-xs mt-1 flex items-center gap-1">
-                  ⚠️ Sélectionnez une adresse depuis les suggestions
+                  ⚠️ Cliquez sur une adresse pour la sélectionner
                 </div>
               )}
             </div>
