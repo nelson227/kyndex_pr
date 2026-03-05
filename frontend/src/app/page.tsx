@@ -1182,14 +1182,13 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
   const [showPassword, setShowPassword] = useState(false);
   const locationAbortController = useRef<AbortController | null>(null);
 
-  const handleLogin = async () => {
+    const handleLogin = async () => {
     setError('');
     if (!email || !password) {
       setError('Email et mot de passe requis');
       return;
     }
 
-    // ✅ Validation format email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError('Email invalide (format: email@exemple.com)');
@@ -1198,44 +1197,36 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
 
     setLoading(true);
     try {
-      // ✅ PHASE 3: Appel API au backend pour la connexion
+      // Try API first
       const apiClient = createApiClient();
-      const response = await apiClient.post(API_ENDPOINTS.LOGIN, {
-        email,
-        password,
-      }, {
-        validateStatus: () => true, // Accepte 4xx aussi
-      });
-
-      if (!response.data?.accessToken) { const users = JSON.parse(localStorage.getItem("kyndex_users") || "[]"); const found = users.find((u: any) => u.email === email); if (found) { localStorage.setItem("kyndex_currentUser", JSON.stringify(found)); setTimeout(() => { router.push("/dashboard"); onClose(); }, 300); return; } setError("Email ou mot de passe incorrect"); return; } const { accessToken, refreshToken, user } = response.data;
-
-      // ✅ Sauvegarde les tokens JWT retournés par le backend
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
-      localStorage.setItem('kyndex_currentUser', JSON.stringify(user));
-
-      // ✅ Log de connexion réussie
-      console.log('✅ Connexion réussie (API):', { email: user.email, id: user.id });
-
-      // ✅ Redirection avec délai pour stabiliser l'UI
-      setTimeout(() => {
-        router.push('/dashboard');
-        onClose();
-      }, 300);
-    } catch (err: any) {
-      // ✅ Gestion d'erreur améliorée avec message du backend
-      let message = err.response?.data?.message || err.message || 'Erreur lors de la connexion';
-      
-      // Fallback: Si l'API échoue, utiliser le localStorage pour les anciens users
-      if (err.response?.status === 401 || err.response?.status === 404) {
-        message = 'Email ou mot de passe incorrect';
+      try {
+        const response = await apiClient.post(API_ENDPOINTS.LOGIN, { email, password });
+        if (response.data?.accessToken) {
+          localStorage.setItem('accessToken', response.data.accessToken);
+          localStorage.setItem('refreshToken', response.data.refreshToken);
+          localStorage.setItem('kyndex_currentUser', JSON.stringify(response.data.user));
+          setTimeout(() => { router.push('/dashboard'); onClose(); }, 300);
+          return;
+        }
+      } catch (apiErr) {
+        console.log('API unavailable, using localStorage fallback');
       }
       
-      console.error('❌ Erreur connexion API:', message);
-      setError(message);
+      // Fallback to localStorage
+      const users = JSON.parse(localStorage.getItem('kyndex_users') || '[]');
+      const found = users.find((u: any) => u.email === email);
+      if (found) {
+        localStorage.setItem('kyndex_currentUser', JSON.stringify(found));
+        setTimeout(() => { router.push('/dashboard'); onClose(); }, 300);
+        return;
+      }
+      
+      setError('Email ou mot de passe incorrect');
+    } finally {
       setLoading(false);
     }
   };
+
 
   // ✅ Recherche de localisation - Robuste et directe
   const handleLocationChange = async (query: string) => {
@@ -1976,6 +1967,7 @@ export default function Home() {
     </div>
   );
 }
+
 
 
 
