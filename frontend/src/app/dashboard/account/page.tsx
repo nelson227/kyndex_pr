@@ -1,24 +1,392 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
-import { createApiClient } from '@/lib/api-client';
-import { setUserStorage } from '@/lib/user-storage';
-import { ProfilePhotoUpload } from '@/components/ProfilePhotoUpload';
+import { User, Mail, Phone, MapPin, Edit2, Lock, LogOut, Settings, Bell, Shield } from 'lucide-react';
 
-type ModalType = 'personal' | 'balance' | 'credit' | 'balance-detail' | 'documents' | 'notifications' | 'security' | 'payment' | null;
+interface UserProfile {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  location: string;
+  bio: string;
+  avatar: string;
+}
 
 export default function AccountPage() {
-  const { user, logout } = useAuth();
-  const router = useRouter();
-  const [activeModal, setActiveModal] = useState<ModalType>(null);
+  const { user, isInitialized } = useAuth();
+  const [profile, setProfile] = useState<UserProfile>({
+    firstName: user?.firstName || 'Jean',
+    lastName: user?.lastName || 'Dupont',
+    email: user?.email || 'jean.dupont@example.com',
+    phone: '+33 6 12 34 56 78',
+    location: 'Paris, France',
+    bio: 'Passionate about design and innovation',
+    avatar: user?.firstName?.[0] || 'J',
+  });
 
-  const handleLogout = () => {
-    logout();
-    router.push('/');
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedProfile, setEditedProfile] = useState(profile);
+  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'notifications' | 'settings'>(
+    'profile'
+  );
+
+  useEffect(() => {
+    if (user) {
+      setProfile({
+        firstName: user.firstName || 'Jean',
+        lastName: user.lastName || 'Dupont',
+        email: user.email || 'jean.dupont@example.com',
+        phone: '+33 6 12 34 56 78',
+        location: 'Paris, France',
+        bio: 'Passionate about design and innovation',
+        avatar: user.firstName?.[0] || 'J',
+      });
+    }
+  }, [user]);
+
+  if (!isInitialized) {
+    return null;
+  }
+
+  const handleSaveProfile = () => {
+    setProfile(editedProfile);
+    setIsEditing(false);
   };
+
+  return (
+    <div className="space-y-8">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+          Mon Compte 👤
+        </h1>
+        <p className="text-gray-400">Gérez votre profil et vos préférences</p>
+      </div>
+
+      {/* Profile Card */}
+      <div className="bg-gradient-to-br from-gray-900/50 to-gray-950/50 border border-cyan-500/20 rounded-2xl p-8 backdrop-blur-sm">
+        <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
+          {/* Avatar */}
+          <div className="relative">
+            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center text-white text-5xl font-bold">
+              {profile.avatar}
+            </div>
+            <button className="absolute bottom-0 right-0 p-2 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 rounded-full transition">
+              <Edit2 className="w-5 h-5 text-cyan-400" />
+            </button>
+          </div>
+
+          {/* Profile Info */}
+          <div className="flex-1 text-center md:text-left">
+            <h2 className="text-3xl font-bold text-white mb-1">
+              {profile.firstName} {profile.lastName}
+            </h2>
+            <p className="text-gray-400 mb-4">{profile.bio}</p>
+
+            <div className="flex flex-col md:flex-row gap-4 text-sm text-gray-300">
+              <div className="flex items-center gap-2 justify-center md:justify-start">
+                <Mail className="w-4 h-4 text-cyan-400" />
+                {profile.email}
+              </div>
+              <div className="flex items-center gap-2 justify-center md:justify-start">
+                <Phone className="w-4 h-4 text-cyan-400" />
+                {profile.phone}
+              </div>
+              <div className="flex items-center gap-2 justify-center md:justify-start">
+                <MapPin className="w-4 h-4 text-cyan-400" />
+                {profile.location}
+              </div>
+            </div>
+
+            {!isEditing && (
+              <button
+                onClick={() => {
+                  setIsEditing(true);
+                  setEditedProfile(profile);
+                }}
+                className="mt-6 px-6 py-2 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 font-semibold rounded-lg transition border border-cyan-500/30 flex items-center gap-2 mx-auto md:mx-0"
+              >
+                <Edit2 className="w-4 h-4" />
+                Modifier Profil
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-4 border-b border-gray-800 overflow-x-auto">
+        {(['profile', 'security', 'notifications', 'settings'] as const).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`pb-4 px-4 font-semibold transition border-b-2 whitespace-nowrap ${
+              activeTab === tab
+                ? 'text-cyan-400 border-cyan-500'
+                : 'text-gray-400 border-transparent hover:text-gray-300'
+            }`}
+          >
+            {tab === 'profile' && <span className="flex items-center gap-2"><User className="w-4 h-4" /> Profil</span>}
+            {tab === 'security' && <span className="flex items-center gap-2"><Shield className="w-4 h-4" /> Sécurité</span>}
+            {tab === 'notifications' && <span className="flex items-center gap-2"><Bell className="w-4 h-4" /> Notifications</span>}
+            {tab === 'settings' && <span className="flex items-center gap-2"><Settings className="w-4 h-4" /> Paramètres</span>}
+          </button>
+        ))}
+      </div>
+
+      {/* Profile Tab */}
+      {activeTab === 'profile' && (
+        <div className="space-y-6">
+          {isEditing ? (
+            <div className="bg-gray-950/50 border border-cyan-500/20 rounded-2xl p-6">
+              <h3 className="text-xl font-bold text-white mb-6">Éditer Profil</h3>
+
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-white mb-2">
+                      Prénom
+                    </label>
+                    <input
+                      type="text"
+                      value={editedProfile.firstName}
+                      onChange={(e) =>
+                        setEditedProfile({
+                          ...editedProfile,
+                          firstName: e.target.value,
+                        })
+                      }
+                      className="w-full px-4 py-2 bg-gray-900/50 border border-gray-800 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-white mb-2">
+                      Nom
+                    </label>
+                    <input
+                      type="text"
+                      value={editedProfile.lastName}
+                      onChange={(e) =>
+                        setEditedProfile({
+                          ...editedProfile,
+                          lastName: e.target.value,
+                        })
+                      }
+                      className="w-full px-4 py-2 bg-gray-900/50 border border-gray-800 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    value={editedProfile.email}
+                    onChange={(e) =>
+                      setEditedProfile({
+                        ...editedProfile,
+                        email: e.target.value,
+                      })
+                    }
+                    className="w-full px-4 py-2 bg-gray-900/50 border border-gray-800 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">
+                    Téléphone
+                  </label>
+                  <input
+                    type="tel"
+                    value={editedProfile.phone}
+                    onChange={(e) =>
+                      setEditedProfile({
+                        ...editedProfile,
+                        phone: e.target.value,
+                      })
+                    }
+                    className="w-full px-4 py-2 bg-gray-900/50 border border-gray-800 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">
+                    Localisation
+                  </label>
+                  <input
+                    type="text"
+                    value={editedProfile.location}
+                    onChange={(e) =>
+                      setEditedProfile({
+                        ...editedProfile,
+                        location: e.target.value,
+                      })
+                    }
+                    className="w-full px-4 py-2 bg-gray-900/50 border border-gray-800 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">
+                    Biographie
+                  </label>
+                  <textarea
+                    value={editedProfile.bio}
+                    onChange={(e) =>
+                      setEditedProfile({
+                        ...editedProfile,
+                        bio: e.target.value,
+                      })
+                    }
+                    rows={4}
+                    className="w-full px-4 py-2 bg-gray-900/50 border border-gray-800 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    onClick={handleSaveProfile}
+                    className="flex-1 px-4 py-2 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 font-semibold rounded-lg transition border border-cyan-500/30"
+                  >
+                    Enregistrer
+                  </button>
+                  <button
+                    onClick={() => setIsEditing(false)}
+                    className="flex-1 px-4 py-2 bg-gray-900/50 hover:bg-gray-900/70 text-gray-400 font-semibold rounded-lg transition border border-gray-800"
+                  >
+                    Annuler
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-gray-950/50 border border-cyan-500/20 rounded-2xl p-6">
+              <h3 className="text-xl font-bold text-white mb-6">Informations Personnelles</h3>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between pb-4 border-b border-gray-800/50">
+                  <span className="text-gray-400">Email</span>
+                  <span className="text-white font-medium">{profile.email}</span>
+                </div>
+                <div className="flex items-center justify-between pb-4 border-b border-gray-800/50">
+                  <span className="text-gray-400">Téléphone</span>
+                  <span className="text-white font-medium">{profile.phone}</span>
+                </div>
+                <div className="flex items-center justify-between pb-4 border-b border-gray-800/50">
+                  <span className="text-gray-400">Localisation</span>
+                  <span className="text-white font-medium">{profile.location}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400">Biographie</span>
+                  <span className="text-white font-medium">{profile.bio}</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Security Tab */}
+      {activeTab === 'security' && (
+        <div className="space-y-4">
+          <div className="bg-gray-950/50 border border-cyan-500/20 rounded-2xl p-6">
+            <h3 className="text-xl font-bold text-white mb-6">Sécurité du Compte</h3>
+
+            <div className="space-y-4">
+              <button className="w-full flex items-center justify-between px-4 py-3 bg-gray-900/50 hover:bg-gray-900/70 border border-gray-800 rounded-lg transition text-left">
+                <div className="flex items-center gap-3">
+                  <Lock className="w-5 h-5 text-cyan-400" />
+                  <div>
+                    <p className="font-semibold text-white">Changer le mot de passe</p>
+                    <p className="text-sm text-gray-400">Mettez à jour votre mot de passe régulièrement</p>
+                  </div>
+                </div>
+                <span className="text-cyan-400">→</span>
+              </button>
+
+              <button className="w-full flex items-center justify-between px-4 py-3 bg-gray-900/50 hover:bg-gray-900/70 border border-gray-800 rounded-lg transition text-left">
+                <div className="flex items-center gap-3">
+                  <Shield className="w-5 h-5 text-purple-400" />
+                  <div>
+                    <p className="font-semibold text-white">Authentification à deux facteurs</p>
+                    <p className="text-sm text-gray-400">Activez pour plus de sécurité</p>
+                  </div>
+                </div>
+                <span className="text-purple-400">→</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Notifications Tab */}
+      {activeTab === 'notifications' && (
+        <div className="space-y-4">
+          <div className="bg-gray-950/50 border border-cyan-500/20 rounded-2xl p-6">
+            <h3 className="text-xl font-bold text-white mb-6">Préférences de Notification</h3>
+
+            <div className="space-y-4">
+              {[
+                { title: 'Nouvelles commandes', desc: 'Recevez une alerte quand vous recevez une nouvelle commande' },
+                { title: 'Messages', desc: 'Notifications pour les nouveaux messages' },
+                { title: 'Mises à jour compte', desc: 'Avis important concernant votre compte' },
+                { title: 'Promotions', desc: 'Offres et promotions exclusives' },
+              ].map((notif, idx) => (
+                <div key={idx} className="flex items-center justify-between p-4 bg-gray-900/50 rounded-lg border border-gray-800/50">
+                  <div>
+                    <p className="font-semibold text-white">{notif.title}</p>
+                    <p className="text-sm text-gray-400">{notif.desc}</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" defaultChecked className="sr-only peer" />
+                    <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500"></div>
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Settings Tab */}
+      {activeTab === 'settings' && (
+        <div className="space-y-4">
+          <div className="bg-gray-950/50 border border-cyan-500/20 rounded-2xl p-6">
+            <h3 className="text-xl font-bold text-white mb-6">Paramètres</h3>
+
+            <div className="space-y-4">
+              <button className="w-full flex items-center justify-between px-4 py-3 bg-gray-900/50 hover:bg-gray-900/70 border border-gray-800 rounded-lg transition text-left">
+                <div className="flex items-center gap-3">
+                  <span className="text-white font-semibold">Langue</span>
+                </div>
+                <span className="text-gray-400">Français</span>
+              </button>
+
+              <button className="w-full flex items-center justify-between px-4 py-3 bg-gray-900/50 hover:bg-gray-900/70 border border-gray-800 rounded-lg transition text-left">
+                <div className="flex items-center gap-3">
+                  <span className="text-white font-semibold">Thème</span>
+                </div>
+                <span className="text-gray-400">Sombre</span>
+              </button>
+
+              <button className="w-full flex items-center justify-between px-4 py-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-lg transition text-left mt-6">
+                <div className="flex items-center gap-3">
+                  <LogOut className="w-5 h-5 text-red-400" />
+                  <span className="text-red-400 font-semibold">Se déconnecter</span>
+                </div>
+                <span className="text-red-400">→</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
   return (
     <div className="space-y-8">
@@ -69,417 +437,3 @@ export default function AccountPage() {
             onClick={() => setActiveModal('personal')}
             className="bg-white p-6 rounded-xl border-2 border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left w-full"
           >
-            <div className="flex items-center gap-3 mb-4">
-              <span className="text-2xl">👤</span>
-              <h3 className="text-lg font-semibold text-gray-900">Informations personnelles</h3>
-            </div>
-            <p className="text-sm text-gray-600 mb-4">
-              Complétez et mettez à jour votre identité pour faciliter les échanges
-            </p>
-            <span className="text-cyan-600 hover:text-cyan-700 font-semibold text-sm">
-              Modifier →
-            </span>
-          </button>
-
-          {/* Payment Methods */}
-          <button 
-            onClick={() => setActiveModal('payment')}
-            className="bg-white p-6 rounded-xl border-2 border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left w-full"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <span className="text-2xl">💳</span>
-              <h3 className="text-lg font-semibold text-gray-900">Moyens de paiement</h3>
-            </div>
-            <p className="text-sm text-gray-600 mb-4">
-              Gérez vos moyens de paiement
-            </p>
-            <span className="text-cyan-600 hover:text-cyan-700 font-semibold text-sm">
-              Ajouter un moyen →
-            </span>
-          </button>
-
-          {/* Notifications */}
-          <button 
-            onClick={() => setActiveModal('notifications')}
-            className="bg-white p-6 rounded-xl border-2 border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left w-full"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <span className="text-2xl">🔔</span>
-              <h3 className="text-lg font-semibold text-gray-900">Gérer mes notifications</h3>
-            </div>
-            <p className="text-sm text-gray-600 mb-4">
-              Choisissez la façon dont vous souhaitement être contacté
-            </p>
-            <span className="text-cyan-600 hover:text-cyan-700 font-semibold text-sm">
-              Paramétrer →
-            </span>
-          </button>
-        </div>
-
-        {/* Right Column */}
-        <div className="space-y-6">
-          {/* Balance */}
-          <button 
-            onClick={() => setActiveModal('balance-detail')}
-            className="bg-white p-6 rounded-xl border-2 border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left w-full"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <span className="text-2xl">💰</span>
-              <h3 className="text-lg font-semibold text-gray-900">Mon solde ($0.00)</h3>
-            </div>
-            <p className="text-sm text-gray-600 mb-4">
-              Consultez les paiements et remboursements effectués
-            </p>
-            <span className="text-cyan-600 hover:text-cyan-700 font-semibold text-sm">
-              Consulter →
-            </span>
-          </button>
-
-          {/* Documents */}
-          <button 
-            onClick={() => setActiveModal('documents')}
-            className="bg-white p-6 rounded-xl border-2 border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left w-full"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <span className="text-2xl">📄</span>
-              <h3 className="text-lg font-semibold text-gray-900">Documents et factures</h3>
-            </div>
-            <p className="text-sm text-gray-600 mb-4">
-              Téléchargez tous les documents disponibles
-            </p>
-            <span className="text-cyan-600 hover:text-cyan-700 font-semibold text-sm">
-              Accéder →
-            </span>
-          </button>
-
-          {/* Security */}
-          <button 
-            onClick={() => setActiveModal('security')}
-            className="bg-white p-6 rounded-xl border-2 border-gray-200 hover:shadow-lg hover:border-cyan-300 transition text-left w-full"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <span className="text-2xl">🛡️</span>
-              <h3 className="text-lg font-semibold text-gray-900">Confiance et sécurité</h3>
-            </div>
-            <p className="text-sm text-gray-600 mb-4">
-              Sécurité, qualité, fiabilité, tout a été pensé pour vous
-            </p>
-            <span className="text-cyan-600 hover:text-cyan-700 font-semibold text-sm">
-              En savoir plus →
-            </span>
-          </button>
-        </div>
-      </div>
-
-      {/* Danger Zone */}
-      <div className="border-t-2 border-gray-200 pt-8">
-        <h3 className="text-2xl font-bold text-gray-900 mb-6">Compte</h3>
-        <button
-          onClick={handleLogout}
-          className="px-6 py-3 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 transition font-semibold"
-        >
-          Se déconnecter
-        </button>
-      </div>
-
-      {/* Modals */}
-      {activeModal && <Modal modalType={activeModal} onClose={() => setActiveModal(null)} user={user} />}
-    </div>
-  );
-}
-
-interface ModalProps {
-  modalType: ModalType;
-  onClose: () => void;
-  user: any;
-}
-
-function Modal({ modalType, onClose, user }: ModalProps) {
-  const [formData, setFormData] = useState({
-    firstName: user?.firstName || '',
-    lastName: user?.lastName || '',
-    email: user?.email || '',
-    phone: user?.phone || '',
-  });
-  const [isSaving, setIsSaving] = useState(false);
-  const [message, setMessage] = useState('');
-  const apiClient = createApiClient();
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSavePersonal = async () => {
-    try {
-      setIsSaving(true);
-      setMessage('');
-
-      // Appel API pour sauvegarder les modifications
-      const response = await apiClient.put('/auth/profile', formData);
-
-      // Mettre à jour les données de l'utilisateur localement
-      const updatedUser = {
-        ...user,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phone: formData.phone,
-      };
-
-      // Sauvegarder dans localStorage
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-      localStorage.setItem('userEmail', formData.email); // Pour la connexion
-
-      setMessage('✅ Modifications enregistrées avec succès !');
-      setTimeout(() => {
-        onClose();
-      }, 1500);
-    } catch (error: any) {
-      setMessage('❌ Erreur lors de la sauvegarde. Veuillez réessayer.');
-      console.error('Erreur:', error);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const getModalContent = () => {
-    switch (modalType) {
-      case 'personal':
-        return {
-          title: 'Informations personnelles',
-          icon: '👤',
-          content: (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Prénom</label>
-                <input
-                  type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  placeholder="Entrez votre prénom"
-                  className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition text-gray-900 placeholder-gray-400"
-                  autoComplete="given-name"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Nom</label>
-                <input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  placeholder="Entrez votre nom"
-                  className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition text-gray-900 placeholder-gray-400"
-                  autoComplete="family-name"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="Entrez votre email"
-                  className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition text-gray-900 placeholder-gray-400"
-                  autoComplete="email"
-                />
-                <p className="text-xs text-orange-600 mt-2 font-medium">⚠️ L'ancien email ne pourra plus être utilisé pour vous connecter après l'enregistrement</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Téléphone</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  placeholder="+33 6 XX XX XX XX"
-                  className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition text-gray-900 placeholder-gray-400"
-                  autoComplete="tel"
-                />
-              </div>
-              {message && (
-                <div className={`p-4 rounded-lg text-sm font-medium ${message.includes('✅') ? 'bg-green-100 text-green-800 border border-green-300' : 'bg-red-100 text-red-800 border border-red-300'}`}>
-                  {message}
-                </div>
-              )}
-              <button
-                onClick={handleSavePersonal}
-                disabled={isSaving}
-                className="w-full mt-6 px-4 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg hover:from-cyan-600 hover:to-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSaving ? '⏳ Enregistrement en cours...' : '✓ Enregistrer les modifications'}
-              </button>
-            </div>
-          )
-        };
-      case 'balance':
-        return {
-          title: 'Mon solde',
-          icon: '💰',
-          content: (
-            <div className="space-y-4">
-              <div className="bg-gradient-to-r from-cyan-100 to-blue-100 p-6 rounded-lg">
-                <p className="text-gray-600 text-sm">Solde disponible</p>
-                <p className="text-3xl font-bold text-gray-900">$0.00</p>
-              </div>
-              <p className="text-gray-600">Votre solde sera mis à jour après validation des transactions.</p>
-            </div>
-          )
-        };
-      case 'credit':
-        return {
-          title: 'Mon crédit Kyndex',
-          icon: '💳',
-          content: (
-            <div className="space-y-4">
-              <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-lg">
-                <p className="text-gray-600 text-sm">Crédits disponibles</p>
-                <p className="text-3xl font-bold text-gray-900">0 crédits</p>
-              </div>
-              <p className="text-gray-600">Les crédits Kyndex vous permettent de payer vos services directement sur la plateforme.</p>
-              <button className="w-full mt-4 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition">
-                Acheter des crédits
-              </button>
-            </div>
-          )
-        };
-      case 'balance-detail':
-        return {
-          title: 'Historique des paiements',
-          icon: '💰',
-          content: (
-            <div className="space-y-4">
-              <div className="bg-gray-50 p-4 rounded-lg text-center">
-                <p className="text-gray-600">Aucune transaction pour le moment</p>
-              </div>
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-700">Résumé :</p>
-                <div className="flex justify-between text-sm">
-                  <span>Revenus</span>
-                  <span className="font-semibold">$0.00</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Dépenses</span>
-                  <span className="font-semibold">$0.00</span>
-                </div>
-                <div className="border-t pt-2 flex justify-between text-sm font-semibold">
-                  <span>Solde net</span>
-                  <span>$0.00</span>
-                </div>
-              </div>
-            </div>
-          )
-        };
-      case 'documents':
-        return {
-          title: 'Documents et factures',
-          icon: '📄',
-          content: (
-            <div className="space-y-4">
-              <p className="text-gray-600 text-sm">Aucun document disponible pour le moment.</p>
-              <p className="text-gray-600 text-sm">Les factures seront disponibles après vos premières transactions.</p>
-            </div>
-          )
-        };
-      case 'notifications':
-        return {
-          title: 'Gérer mes notifications',
-          icon: '🔔',
-          content: (
-            <div className="space-y-4">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" defaultChecked className="w-4 h-4 cursor-pointer" />
-                <span className="text-gray-700">Notifications par email</span>
-              </label>
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" defaultChecked className="w-4 h-4 cursor-pointer" />
-                <span className="text-gray-700">Notifications par SMS</span>
-              </label>
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" defaultChecked className="w-4 h-4 cursor-pointer" />
-                <span className="text-gray-700">Notifications de messages</span>
-              </label>
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" className="w-4 h-4 cursor-pointer" />
-                <span className="text-gray-700">Notification marketing</span>
-              </label>
-              <button className="w-full mt-4 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition">
-                Enregistrer les préférences
-              </button>
-            </div>
-          )
-        };
-      case 'security':
-        return {
-          title: 'Confiance et sécurité',
-          icon: '🛡️',
-          content: (
-            <div className="space-y-4">
-              <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
-                <p className="font-semibold text-green-900">✓ Compte sécurisé</p>
-                <p className="text-sm text-green-800 mt-1">Votre compte est protégé par authentification à deux facteurs.</p>
-              </div>
-              <div>
-                <p className="font-medium text-gray-900 mb-2">Mesures de sécurité actives :</p>
-                <ul className="space-y-2 text-sm text-gray-700">
-                  <li>✓ Mot de passe sécurisé</li>
-                  <li>✓ Vérification par email</li>
-                  <li>✓ Authentification à deux facteurs optionnelle</li>
-                </ul>
-              </div>
-              <button className="w-full mt-4 px-4 py-2 border border-cyan-500 text-cyan-600 rounded-lg font-semibold hover:bg-cyan-50 transition">
-                Modifier le mot de passe
-              </button>
-            </div>
-          )
-        };
-      case 'payment':
-        return {
-          title: 'Moyens de paiement',
-          icon: '💳',
-          content: (
-            <div className="space-y-4">
-              <p className="text-gray-600 text-sm">Aucun moyen de paiement enregistré.</p>
-              <button className="w-full px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition">
-                Ajouter une carte
-              </button>
-            </div>
-          )
-        };
-      default:
-        return { title: '', icon: '', content: null };
-    }
-  };
-
-  const modal = getModalContent();
-
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl">{modal.icon}</span>
-            <h2 className="text-2xl font-bold text-gray-900">{modal.title}</h2>
-          </div>
-          <button
-            onClick={onClose}
-            className="ml-4 p-2 hover:bg-red-100 text-gray-600 hover:text-red-600 rounded-lg transition flex-shrink-0"
-            title="Fermer"
-            aria-label="Fermer"
-          >
-            <X className="w-8 h-8" />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="p-6">
-          {modal.content}
-        </div>
-      </div>
-    </div>
-  );
-}
