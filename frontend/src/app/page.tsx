@@ -1176,11 +1176,13 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
   const [locationSuggestions, setLocationSuggestions] = useState<LocationSuggestion[]>([]);
   const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<LocationSuggestion | null>(null);
+  const [isLoadingLocations, setIsLoadingLocations] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const locationSearchTimeout = useRef<NodeJS.Timeout | null>(null);
+  const locationRequestCache = useRef<{ [key: string]: LocationSuggestion[] }>({});
 
   const handleLogin = async () => {
     setError('');
@@ -1229,49 +1231,57 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
     }
   };
 
-  // ✅ Fonction pour chercher les suggestions de localisation via Nominatim API avec debounce
+  // ✅ Recherche de localisation ultra-fluide avec cache
   const fetchLocationSuggestions = async (query: string) => {
-    // ✅ Annuler la requête précédente si elle existe
-    if (locationSearchTimeout.current) {
-      clearTimeout(locationSearchTimeout.current);
-    }
-
     if (query.length < 1) {
       setLocationSuggestions([]);
       setShowLocationSuggestions(false);
       return;
     }
 
-    // ✅ Debounce de 300ms pour éviter trop d'appels API
-    locationSearchTimeout.current = setTimeout(async () => {
-      try {
-        // ✅ Utilise Nominatim (OpenStreetMap) pour l'autocomplétion d'adresses
-        const response = await axios.get('https://nominatim.openstreetmap.org/search', {
-          params: {
-            q: query,
-            format: 'json',
-            limit: 8,
-            addressdetails: 1,
-          },
-        });
+    // ✅ Vérifier le cache d'abord - affichage instantané
+    if (locationRequestCache.current[query]) {
+      setLocationSuggestions(locationRequestCache.current[query]);
+      setShowLocationSuggestions(true);
+      setIsLoadingLocations(false);
+      return;
+    }
 
-        if (response.data && Array.isArray(response.data)) {
-          const suggestions = response.data.map((item: any) => ({
-            name: item.name || item.display_name?.split(',')[0] || query,
-            address: item.display_name || item.address?.road || query,
-            lat: parseFloat(item.lat),
-            lon: parseFloat(item.lon),
-          }));
-          setLocationSuggestions(suggestions);
-          setShowLocationSuggestions(true);
-        } else {
-          setLocationSuggestions([]);
-        }
-      } catch (err) {
-        console.error('Erreur lors de la recherche de localisation:', err);
+    // ✅ Afficher loading et faire la requête immédiatement
+    setIsLoadingLocations(true);
+    setShowLocationSuggestions(true);
+
+    try {
+      const response = await axios.get('https://nominatim.openstreetmap.org/search', {
+        params: {
+          q: query,
+          format: 'json',
+          limit: 10,
+          addressdetails: 1,
+        },
+        timeout: 5000, // 5 secondes max
+      });
+
+      if (response.data && Array.isArray(response.data)) {
+        const suggestions = response.data.map((item: any) => ({
+          name: item.name || item.display_name?.split(',')[0] || query,
+          address: item.display_name || item.address?.road || query,
+          lat: parseFloat(item.lat),
+          lon: parseFloat(item.lon),
+        }));
+        
+        // ✅ Mettre en cache
+        locationRequestCache.current[query] = suggestions;
+        setLocationSuggestions(suggestions);
+      } else {
         setLocationSuggestions([]);
       }
-    }, 300);
+    } catch (err) {
+      console.error('Erreur recherche localisation:', err);
+      setLocationSuggestions([]);
+    } finally {
+      setIsLoadingLocations(false);
+    }
   };
 
   // ✅ Sélectionner une suggestion de localisation
@@ -1524,7 +1534,7 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
               </div>
             </div>
 
-            {/* ✅ Champ Localisation avec autocomplétion fluide */}
+            {/* ✅ Champ Localisation - Ultra fluide et réactif */}
             <div className="relative z-20">
               <label className="text-white text-sm font-semibold block mb-2">Localisation 📍</label>
               <input
@@ -1533,51 +1543,53 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
                 onChange={(e) => {
                   const newLocation = e.target.value;
                   setLocation(newLocation);
-                  setSelectedLocation(null); // Reset la sélection quand on modifie
-                  setShowLocationSuggestions(true); // ✅ Afficher le dropdown immédiatement
+                  setSelectedLocation(null);
                   fetchLocationSuggestions(newLocation);
                 }}
+                onFocus={() => {
+                  if (location.length >= 1) {
+                    setShowLocationSuggestions(true);
+                  }
+                }}
                 onBlur={() => {
-                  // Fermer le dropdown après un léger délai si on quitte le champ
                   setTimeout(() => setShowLocationSuggestions(false), 200);
                 }}
-                placeholder="Entrez une adresse (ex: 5360, Paris, Montreal...)"
+                placeholder="Tapez une adresse (ex: 5360, Paris, Montreal...)"
                 className={`w-full bg-gray-700/50 border ${
                   selectedLocation ? 'border-green-400/50' : 'border-cyan-400/30'
                 } rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none transition`}
               />
+              
               {selectedLocation && (
                 <div className="text-green-400 text-xs mt-1 flex items-center gap-1">
                   ✅ Adresse validée
                 </div>
               )}
               
-              {/* ✅ Affiche les suggestions d'autocomplétion en dropdown */}
+              {/* ✅ Dropdown avec suggestions - Affichage instantané */}
               {showLocationSuggestions && location.length >= 1 && (
-                <div className="absolute top-full left-0 right-0 bg-gray-800 border border-cyan-400/50 rounded-xl mt-1 shadow-lg max-h-56 overflow-y-auto z-50">
+                <div className="absolute top-full left-0 right-0 bg-gray-800 border border-cyan-400/50 rounded-xl mt-1 shadow-lg max-h-64 overflow-y-auto z-50">
                   {locationSuggestions.length > 0 ? (
                     locationSuggestions.map((suggestion, idx) => (
                       <button
                         key={idx}
                         type="button"
                         onClick={() => selectLocationSuggestion(suggestion)}
-                        className="w-full text-left px-4 py-3 hover:bg-cyan-500/30 text-white text-sm border-b border-gray-700/50 last:border-0 transition duration-150 ease-in-out"
+                        className="w-full text-left px-4 py-3 hover:bg-cyan-500/30 text-white text-sm border-b border-gray-700/50 last:border-0 transition duration-100"
                       >
                         <div className="font-semibold text-cyan-300 truncate">{suggestion.name}</div>
                         <div className="text-gray-400 text-xs truncate">{suggestion.address}</div>
                       </button>
                     ))
+                  ) : isLoadingLocations ? (
+                    <div className="px-4 py-4 text-center text-gray-400 text-sm">
+                      <div className="animate-pulse">⏳ Chargement...</div>
+                    </div>
                   ) : (
                     <div className="px-4 py-3 text-gray-400 text-sm text-center">
-                      ⏳ Recherche en cours...
+                      Aucune adresse trouvée
                     </div>
                   )}
-                </div>
-              )}
-
-              {location && !selectedLocation && location.length >= 1 && locationSuggestions.length > 0 && !showLocationSuggestions && (
-                <div className="text-yellow-400 text-xs mt-1 flex items-center gap-1">
-                  ⚠️ Cliquez sur une adresse pour la sélectionner
                 </div>
               )}
             </div>
