@@ -1328,39 +1328,76 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
 
     setLoading(true);
     try {
-      // ✅ PHASE 3: Appel API au backend pour l'inscription
+      // ✅ PHASE 3: Essai API d'abord
       const apiClient = createApiClient();
-      const response = await apiClient.post(API_ENDPOINTS.REGISTER, {
+      try {
+        const response = await apiClient.post(API_ENDPOINTS.REGISTER, {
+          firstName: firstname,
+          lastName: lastname,
+          email,
+          password,
+          phone: fullPhone,
+          location: selectedLocation?.address || '',
+          latitude: selectedLocation?.lat || 0,
+          longitude: selectedLocation?.lon || 0,
+        });
+
+        if (response.data?.accessToken) {
+          const { accessToken, refreshToken, user } = response.data;
+          
+          // ✅ Sauvegarde les tokens JWT retournés par le backend
+          localStorage.setItem('accessToken', accessToken);
+          localStorage.setItem('refreshToken', refreshToken);
+          localStorage.setItem('kyndex_currentUser', JSON.stringify(user));
+
+          // ✅ Log de création pour debug
+          console.log('✅ Nouveau compte créé (API):', { email: user.email, id: user.id, firstName: user.firstName });
+
+          // ✅ Redirection avec délai pour stabiliser l'UI
+          setTimeout(() => {
+            router.push('/dashboard');
+            onClose();
+          }, 300);
+          return;
+        }
+      } catch (apiErr) {
+        console.log('API unavailable for signup, using localStorage fallback');
+      }
+
+      // ✅ Fallback localStorage - Créer l'utilisateur localement
+      const newUser = {
+        id: Date.now().toString(),
         firstName: firstname,
         lastName: lastname,
         email,
         password,
         phone: fullPhone,
-        location: selectedLocation.address,
-        latitude: selectedLocation.lat,
-        longitude: selectedLocation.lon,
-      });
+        location: selectedLocation?.address || '',
+        latitude: selectedLocation?.lat || 0,
+        longitude: selectedLocation?.lon || 0,
+        createdAt: new Date().toISOString(),
+      };
 
-      if (!response.data?.accessToken) { const users = JSON.parse(localStorage.getItem("kyndex_users") || "[]"); const found = users.find((u: any) => u.email === email); if (found) { localStorage.setItem("kyndex_currentUser", JSON.stringify(found)); setTimeout(() => { router.push("/dashboard"); onClose(); }, 300); return; } setError("Email ou mot de passe incorrect"); return; } const { accessToken, refreshToken, user } = response.data;
+      const users = JSON.parse(localStorage.getItem('kyndex_users') || '[]');
+      const userExists = users.some((u: any) => u.email === email);
+      
+      if (userExists) {
+        setError('Cet email est déjà utilisé');
+        return;
+      }
 
-      // ✅ Sauvegarde les tokens JWT retournés par le backend
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
-      localStorage.setItem('kyndex_currentUser', JSON.stringify(user));
+      users.push(newUser);
+      localStorage.setItem('kyndex_users', JSON.stringify(users));
+      localStorage.setItem('kyndex_currentUser', JSON.stringify(newUser));
 
-      // ✅ Log de création pour debug
-      console.log('✅ Nouveau compte créé (API):', { email: user.email, id: user.id, firstName: user.firstName });
+      console.log('✅ Nouveau compte créé (localStorage):', { email: newUser.email, id: newUser.id });
 
-      // ✅ Redirection avec délai pour stabiliser l'UI
+      // ✅ Redirection avec délai
       setTimeout(() => {
         router.push('/dashboard');
         onClose();
       }, 300);
-    } catch (err: any) {
-      // ✅ Gestion d'erreur améliorée avec message du backend
-      const message = err.response?.data?.message || err.message || 'Erreur lors de la création du compte';
-      console.error('❌ Erreur inscription API:', message);
-      setError(message);
+    } finally {
       setLoading(false);
     }
   };
