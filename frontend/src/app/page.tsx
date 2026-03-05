@@ -1176,13 +1176,11 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
   const [locationSuggestions, setLocationSuggestions] = useState<LocationSuggestion[]>([]);
   const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<LocationSuggestion | null>(null);
-  const [isLoadingLocations, setIsLoadingLocations] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const locationSearchTimeout = useRef<NodeJS.Timeout | null>(null);
-  const locationRequestCache = useRef<{ [key: string]: LocationSuggestion[] }>({});
+  const locationAbortController = useRef<AbortController | null>(null);
 
   const handleLogin = async () => {
     setError('');
@@ -1231,56 +1229,55 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
     }
   };
 
-  // ✅ Recherche de localisation ultra-fluide avec cache
-  const fetchLocationSuggestions = async (query: string) => {
+  // ✅ Recherche de localisation - Robuste et directe
+  const handleLocationChange = async (query: string) => {
+    setLocation(query);
+    setSelectedLocation(null);
+
     if (query.length < 1) {
       setLocationSuggestions([]);
       setShowLocationSuggestions(false);
       return;
     }
 
-    // ✅ Vérifier le cache d'abord - affichage instantané
-    if (locationRequestCache.current[query]) {
-      setLocationSuggestions(locationRequestCache.current[query]);
-      setShowLocationSuggestions(true);
-      setIsLoadingLocations(false);
-      return;
+    // Annuler les requêtes précédentes
+    if (locationAbortController.current) {
+      locationAbortController.current.abort();
     }
-
-    // ✅ Afficher loading et faire la requête immédiatement
-    setIsLoadingLocations(true);
-    setShowLocationSuggestions(true);
+    locationAbortController.current = new AbortController();
 
     try {
-      const response = await axios.get('https://nominatim.openstreetmap.org/search', {
-        params: {
-          q: query,
-          format: 'json',
-          limit: 10,
-          addressdetails: 1,
-        },
-        timeout: 5000, // 5 secondes max
-      });
+      const response = await axios.get(
+        'https://nominatim.openstreetmap.org/search',
+        {
+          params: {
+            q: query,
+            format: 'json',
+            limit: 12,
+            addressdetails: 1,
+          },
+          signal: locationAbortController.current.signal,
+          timeout: 8000,
+        }
+      );
 
       if (response.data && Array.isArray(response.data)) {
         const suggestions = response.data.map((item: any) => ({
           name: item.name || item.display_name?.split(',')[0] || query,
-          address: item.display_name || item.address?.road || query,
+          address: item.display_name || query,
           lat: parseFloat(item.lat),
           lon: parseFloat(item.lon),
         }));
-        
-        // ✅ Mettre en cache
-        locationRequestCache.current[query] = suggestions;
         setLocationSuggestions(suggestions);
+        setShowLocationSuggestions(true);
       } else {
         setLocationSuggestions([]);
+        setShowLocationSuggestions(true);
       }
-    } catch (err) {
-      console.error('Erreur recherche localisation:', err);
-      setLocationSuggestions([]);
-    } finally {
-      setIsLoadingLocations(false);
+    } catch (err: any) {
+      if (err.name !== 'CanceledError') {
+        console.error('Erreur localisation:', err);
+      }
     }
   };
 
@@ -1534,62 +1531,49 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
               </div>
             </div>
 
-            {/* ✅ Champ Localisation - Ultra fluide et réactif */}
+            {/* ✅ Champ Localisation - Robuste et efficace */}
             <div className="relative z-20">
               <label className="text-white text-sm font-semibold block mb-2">Localisation 📍</label>
               <input
                 type="text"
                 value={location}
-                onChange={(e) => {
-                  const newLocation = e.target.value;
-                  setLocation(newLocation);
-                  setSelectedLocation(null);
-                  fetchLocationSuggestions(newLocation);
-                }}
+                onChange={(e) => handleLocationChange(e.target.value)}
                 onFocus={() => {
-                  if (location.length >= 1) {
+                  if (location.length >= 1 && locationSuggestions.length > 0) {
                     setShowLocationSuggestions(true);
                   }
                 }}
                 onBlur={() => {
-                  setTimeout(() => setShowLocationSuggestions(false), 200);
+                  setTimeout(() => setShowLocationSuggestions(false), 150);
                 }}
-                placeholder="Tapez une adresse (ex: 5360, Paris, Montreal...)"
+                placeholder="Ex: 5360 Avenue West, Paris..."
                 className={`w-full bg-gray-700/50 border ${
                   selectedLocation ? 'border-green-400/50' : 'border-cyan-400/30'
                 } rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none transition`}
               />
               
               {selectedLocation && (
-                <div className="text-green-400 text-xs mt-1 flex items-center gap-1">
-                  ✅ Adresse validée
-                </div>
+                <div className="text-green-400 text-xs mt-1">✅ Adresse sélectionnée</div>
               )}
               
-              {/* ✅ Dropdown avec suggestions - Affichage instantané */}
-              {showLocationSuggestions && location.length >= 1 && (
-                <div className="absolute top-full left-0 right-0 bg-gray-800 border border-cyan-400/50 rounded-xl mt-1 shadow-lg max-h-64 overflow-y-auto z-50">
-                  {locationSuggestions.length > 0 ? (
-                    locationSuggestions.map((suggestion, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => selectLocationSuggestion(suggestion)}
-                        className="w-full text-left px-4 py-3 hover:bg-cyan-500/30 text-white text-sm border-b border-gray-700/50 last:border-0 transition duration-100"
-                      >
-                        <div className="font-semibold text-cyan-300 truncate">{suggestion.name}</div>
-                        <div className="text-gray-400 text-xs truncate">{suggestion.address}</div>
-                      </button>
-                    ))
-                  ) : isLoadingLocations ? (
-                    <div className="px-4 py-4 text-center text-gray-400 text-sm">
-                      <div className="animate-pulse">⏳ Chargement...</div>
-                    </div>
-                  ) : (
-                    <div className="px-4 py-3 text-gray-400 text-sm text-center">
-                      Aucune adresse trouvée
-                    </div>
-                  )}
+              {/* ✅ Dropdown des suggestions - Simple et efficace */}
+              {showLocationSuggestions && location.length >= 1 && locationSuggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 bg-gray-800 border border-cyan-400/50 rounded-xl mt-1 shadow-2xl max-h-72 overflow-y-auto z-50">
+                  {locationSuggestions.map((suggestion, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => selectLocationSuggestion(suggestion)}
+                      className="w-full text-left px-4 py-3 hover:bg-cyan-500/20 text-white border-b border-gray-700/30 last:border-0 transition-colors duration-75"
+                    >
+                      <div className="font-medium text-cyan-300 text-sm truncate">
+                        {suggestion.name}
+                      </div>
+                      <div className="text-gray-400 text-xs truncate mt-0.5">
+                        {suggestion.address}
+                      </div>
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
