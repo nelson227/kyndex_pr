@@ -1132,79 +1132,135 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
       return;
     }
 
+    // ✅ Validation format email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Email invalide (format: email@exemple.com)');
+      return;
+    }
+
     setLoading(true);
     try {
-      const users = JSON.parse(localStorage.getItem('kyndex_users') || '[]');
-      const user = users.find((u: any) => u.email === email);
+      // ✅ PHASE 3: Appel API au backend pour la connexion
+      const apiClient = createApiClient();
+      const response = await apiClient.post(API_ENDPOINTS.LOGIN, {
+        email,
+        password,
+      });
 
-      if (!user) {
-        setError('Email ou mot de passe incorrect');
-        setLoading(false);
-        return;
-      }
+      const { accessToken, refreshToken, user } = response.data;
 
-      if (user.password !== password) {
-        setError('Email ou mot de passe incorrect');
-        setLoading(false);
-        return;
-      }
-
-      // ✅ IMPORTANT: S'assurer que user.id = email (stable)
-      // Pour la migration des anciens comptes avec Date.now() comme ID
-      if (!user.id || typeof user.id === 'number') {
-        user.id = email;
-        const userIndex = users.findIndex((u: any) => u.email === email);
-        users[userIndex] = user;
-        localStorage.setItem('kyndex_users', JSON.stringify(users));
-      }
-
-      // Connexion réussie
+      // ✅ Sauvegarde les tokens JWT retournés par le backend
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('kyndex_currentUser', JSON.stringify(user));
+
+      // ✅ Log de connexion réussie
+      console.log('✅ Connexion réussie (API):', { email: user.email, id: user.id });
+
+      // ✅ Redirection avec délai pour stabiliser l'UI
       setTimeout(() => {
         router.push('/dashboard');
         onClose();
-      }, 100);
-    } catch (err) {
-      setError('Erreur lors de la connexion');
+      }, 300);
+    } catch (err: any) {
+      // ✅ Gestion d'erreur améliorée avec message du backend
+      const message = err.response?.data?.message || err.message || 'Erreur lors de la connexion';
+      console.error('❌ Erreur connexion API:', message);
+      setError(message);
       setLoading(false);
     }
   };
 
   const handleSignup = async () => {
     setError('');
-    if (!firstname || !lastname || !email || !phone || !location || !password) {
-      setError('Tous les champs sont requis');
+    
+    // ✅ Validation détaillée de chaque champ
+    if (!firstname) {
+      setError('Le prénom est requis');
+      return;
+    }
+    if (!lastname) {
+      setError('Le nom est requis');
+      return;
+    }
+    if (!email) {
+      setError('L\'email est requis');
+      return;
+    }
+    if (!phone) {
+      setError('Le téléphone est requis');
+      return;
+    }
+    if (!location) {
+      setError('La localisation est requise');
+      return;
+    }
+    if (!password) {
+      setError('Le mot de passe est requis');
       return;
     }
 
-    if (password.length < 8) {
-      setError('Le mot de passe doit avoir au moins 8 caractères');
+    // ✅ Validation format email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Email invalide (format: email@exemple.com)');
+      return;
+    }
+
+    // ✅ Validation format téléphone (accepte plusieurs formats)
+    const phoneRegex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
+    if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
+      setError('Numéro de téléphone invalide (ex: +33 6 12 34 56 78 ou 0612345678)');
+      return;
+    }
+
+    // ✅ Validation localisation (non vide et pas trop court)
+    if (location.trim().length < 2) {
+      setError('Localisation invalide (minimum 2 caractères)');
+      return;
+    }
+
+    // ✅ Validation mot de passe fort (8+ chars, majuscule, minuscule, chiffre, symbole)
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setError('Mot de passe faible: 8+ caractères, 1 MAJUSCULE, 1 minuscule, 1 chiffre, 1 symbole (@$!%*?&)');
       return;
     }
 
     setLoading(true);
     try {
-      const users = JSON.parse(localStorage.getItem('kyndex_users') || '[]');
-      
-      if (users.find((u: any) => u.email === email)) {
-        setError('Cet email est déjà utilisé');
-        setLoading(false);
-        return;
-      }
+      // ✅ PHASE 3: Appel API au backend pour l'inscription
+      const apiClient = createApiClient();
+      const response = await apiClient.post(API_ENDPOINTS.REGISTER, {
+        firstName: firstname,
+        lastName: lastname,
+        email,
+        password,
+        phone,
+        location,
+      });
 
-      // ✅ IMPORTANT: Utiliser email comme ID (stable et unique)
-      // Jamais Date.now() car cela change à chaque création
-      const newUser = { id: email, firstname, lastname, email, phone, location, password };
-      users.push(newUser);
-      localStorage.setItem('kyndex_users', JSON.stringify(users));
-      localStorage.setItem('kyndex_currentUser', JSON.stringify(newUser));
+      const { accessToken, refreshToken, user } = response.data;
 
+      // ✅ Sauvegarde les tokens JWT retournés par le backend
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('kyndex_currentUser', JSON.stringify(user));
+
+      // ✅ Log de création pour debug
+      console.log('✅ Nouveau compte créé (API):', { email: user.email, id: user.id, firstName: user.firstName });
+
+      // ✅ Redirection avec délai pour stabiliser l'UI
       setTimeout(() => {
         router.push('/dashboard');
         onClose();
-      }, 100);
-    } catch (err) {
-      setError('Erreur lors de la création du compte');
+      }, 300);
+    } catch (err: any) {
+      // ✅ Gestion d'erreur améliorée avec message du backend
+      const message = err.response?.data?.message || err.message || 'Erreur lors de la création du compte';
+      console.error('❌ Erreur inscription API:', message);
+      setError(message);
       setLoading(false);
     }
   };

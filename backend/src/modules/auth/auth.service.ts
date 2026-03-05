@@ -59,7 +59,14 @@ export class AuthService {
     };
   }
 
-  async register(email: string, password: string, firstName: string, lastName: string) {
+  async register(
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string,
+    phone?: string,
+    location?: string,
+  ) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await (this.prisma as any).user.create({
@@ -70,6 +77,8 @@ export class AuthService {
           create: {
             firstName,
             lastName,
+            location,
+            // Note: phone field not yet in schema, can be added to Profile in future migration
           },
         },
       },

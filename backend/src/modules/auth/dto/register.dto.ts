@@ -21,6 +21,14 @@ export class RegisterDto {
 
   @IsOptional()
   @IsString()
+  phone?: string;
+
+  @IsOptional()
+  @IsString()
+  location?: string;
+
+  @IsOptional()
+  @IsString()
   bio?: string;
 
   @IsOptional()
