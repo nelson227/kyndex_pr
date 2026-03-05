@@ -1313,14 +1313,6 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
       setError('L\'email est requis');
       return;
     }
-    if (!phone) {
-      setError('Le téléphone est requis');
-      return;
-    }
-    if (!location || !selectedLocation) {
-      setError('Vous devez sélectionner une localisation valide depuis les suggestions');
-      return;
-    }
     if (!password) {
       setError('Le mot de passe est requis');
       return;
@@ -1333,21 +1325,8 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }: { isOpen: boolean
       return;
     }
 
-    // ✅ Construction du numéro de téléphone complet avec code pays
-    const fullPhone = `${countryCode}${phone.replace(/^[\+\d\s\-\(\)]/g, '').trim()}`;
-
-    // ✅ Validation format téléphone (accepte plusieurs formats)
-    const phoneRegex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
-    if (!phoneRegex.test(fullPhone.replace(/\s/g, ''))) {
-      setError('Numéro de téléphone invalide (ex: +33 6 12 34 56 78 ou 0612345678)');
-      return;
-    }
-
-    // ✅ Validation localisation (confirmée avec Nominatim)
-    if (!selectedLocation) {
-      setError('Localisation invalide. Veuillez sélectionner une localisation depuis les suggestions');
-      return;
-    }
+    // Construction du numéro de téléphone (optionnel)
+    const fullPhone = phone ? `${countryCode}${phone.replace(/^[\+\d\s\-\(\)]/g, '').trim()}` : '';
 
     // ✅ Validation mot de passe fort (8+ chars, majuscule, minuscule, chiffre, symbole)
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
